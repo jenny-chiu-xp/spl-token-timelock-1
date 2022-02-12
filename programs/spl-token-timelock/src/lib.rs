@@ -22,12 +22,13 @@ pub mod spl_token_timelock {
         end_ts: u64,
         period: u64,
         cliff: u64,
-        tge_rate: u64,
+        cliff_release_rate: u64,
+        tge_release_rate: u64,
     ) -> ProgramResult {
         msg!("Initializing SPL token stream");
 
         let now = ctx.accounts.clock.unix_timestamp as u64;
-        if !duration_sanity(now, start_ts, end_ts, cliff) { 
+        if !time_check(now, start_ts, end_ts, cliff) { 
             emit!(CreateVestingEvent {
                 data: ErrorCode::InvalidSchedule as u64,
                 status: "err".to_string(),
@@ -41,12 +42,15 @@ pub mod spl_token_timelock {
             });
             return Err(ErrorCode::InvalidPeriod.into());
         }
-        if tge_rate > 100 {
+        if tge_release_rate > 100 || 
+        cliff_release_rate > 100 || 
+        tge_release_rate + cliff_release_rate > 100
+        {
             emit!(CreateVestingEvent {
-                data: ErrorCode::InvalidTGERate as u64,
+                data: ErrorCode::InvalidReleaseRate as u64,
                 status: "err".to_string(),
             });
-            return Err(ErrorCode::InvalidTGERate.into());
+            return Err(ErrorCode::InvalidReleaseRate.into());
         }
 
         let recipient_tokens_key = associated_token::get_associated_token_address(
@@ -102,18 +106,25 @@ pub mod spl_token_timelock {
         vesting.last_withdrawn_at = 0;
 
         vesting.period = period;
-        vesting.cliff = cliff;
 
-        vesting.tge_rate = tge_rate;
+        vesting.cliff = cliff;
+        vesting.cliff_release_rate = cliff_release_rate;
+        vesting.cliff_amount = 0;
+
+        vesting.tge_release_rate = tge_release_rate;
         vesting.tge_amount = 0;
 
-        if tge_rate != 0 {
-            vesting.tge_amount = amount_to_ui_amount(total_amount.saturating_mul(tge_rate), 2) as u64;
+        if cliff_release_rate != 0 {
+            vesting.cliff_amount = amount_to_ui_amount(total_amount.saturating_mul(cliff_release_rate), 2) as u64;
         }
 
-        vesting.unlock_amount = ((total_amount - vesting.tge_amount) / (end_ts - start_ts)) * period;
+        if tge_release_rate != 0 {
+            vesting.tge_amount = amount_to_ui_amount(total_amount.saturating_mul(tge_release_rate), 2) as u64;
+        }
+
+        vesting.periodic_unlock_amount = ((total_amount - vesting.tge_amount - vesting.cliff_amount) / (end_ts - start_ts)) * period;
         if cliff != 0 {
-            vesting.unlock_amount = ((total_amount - vesting.tge_amount) / (end_ts - cliff)) * period;
+            vesting.periodic_unlock_amount = ((total_amount - vesting.tge_amount - vesting.cliff_amount) / (end_ts - cliff)) * period;
         }
         
         let cpi_accounts = Transfer {
@@ -410,12 +421,16 @@ pub struct Vesting {
     pub period: u64,
     /// Vesting contract "cliff" timestamp
     pub cliff: u64,
-    /// The rate of release at TGE
-    pub tge_rate: u64,
-    /// The amount of TGE release
+    /// The rate of amount unlocked at the "cliff" timestamp
+    pub cliff_release_rate: u64,
+    /// Amount unlocked at the "cliff" timestamp
+    pub cliff_amount: u64,
+    /// The rate of amount unlocked at TGE
+    pub tge_release_rate: u64,
+    /// Amount unlocked at TGE
     pub tge_amount: u64,
     ///Amount to be unlocked per time during linear unlocking
-    pub unlock_amount: u64,
+    pub periodic_unlock_amount: u64,
     
 }
 
@@ -455,8 +470,8 @@ pub fn available_for_withdrawal(vesting: &Vesting, current_ts: u64) -> u64 {
     let mut available: u64 = 0;
     let interval = current_ts - vesting.accounting_ts;
     if interval > vesting.period {
-        let unlocked = interval.checked_div(vesting.period).unwrap() * vesting.unlock_amount;
-        available = unlocked + vesting.tge_amount - vesting.withdrawn_amount;
+        let unlocked = interval.checked_div(vesting.period).unwrap() * vesting.periodic_unlock_amount;
+        available = unlocked + vesting.tge_amount + vesting.cliff_amount - vesting.withdrawn_amount;
     }
 
     available
@@ -464,7 +479,7 @@ pub fn available_for_withdrawal(vesting: &Vesting, current_ts: u64) -> u64 {
 
 
 /// Do a sanity check with given Unix timestamps.
-pub fn duration_sanity(now: u64, start: u64, end: u64, cliff: u64) -> bool {
+pub fn time_check(now: u64, start: u64, end: u64, cliff: u64) -> bool {
     let cliff_cond = if cliff == 0 {
         true
     } else {
@@ -496,8 +511,8 @@ pub enum ErrorCode {
     InvalidTimestamp,
     #[msg("The number of vesting periods must be greater than zero.")]
     InvalidPeriod,
-    #[msg("The TGE rate of vesting must be less than 100")]
-    InvalidTGERate,
+    #[msg("The release rate of vesting must be less than 100")]
+    InvalidReleaseRate,
     #[msg("The cliff time must be less than vesting time.")]
     InvalidCliffTime,
     #[msg("The vesting deposit amount must be greater than zero.")]

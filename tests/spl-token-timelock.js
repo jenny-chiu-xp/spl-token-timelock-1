@@ -172,6 +172,7 @@ describe('spl-token-timelock', () => {
         period,
         cliff,
         new BN(10),
+        new BN(20),
         {
           accounts: {
             granter: granter.publicKey,
