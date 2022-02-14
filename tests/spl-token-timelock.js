@@ -229,7 +229,7 @@ describe('spl-token-timelock', () => {
       
     await sleep(10000);
 
-    console.log("\Withdraw:");
+    console.log("Withdraw:");
     console.log("recipient token", recipientToken.toBase58());
 
     let listener = null;
