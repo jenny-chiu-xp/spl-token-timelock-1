@@ -1,0 +1,46 @@
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  /*-webkit-user-select: none;*/
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+}
+
+html,
+body,
+#app,
+#root {
+  height: auto;
+  max-width: 100vw;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+  background: #1c1c1c;
+
+  font-size: 20px;
+
+  ::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+}
+
+.bg-green-gradient {
+  background: linear-gradient(90deg, #61e290 7.57%, #92e261 88.38%);
+}
+
+.btn-common {
+  width: fit-content;
+  height: 2.4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(90deg, #61e290 7.57%, #92e261 88.38%);
+  box-sizing: border-box;
+  color: white;
+  font-size: 0.8rem;
+  border-radius: 0.7rem;
+
+  &:active {
+    background: linear-gradient(90deg, #92e261 7.57%, #61e290.38%);
+  }
+}
