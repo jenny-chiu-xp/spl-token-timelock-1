@@ -218,7 +218,7 @@ const UNITS = [
 ]
 const periodUnit = ref(UNITS[0].value)
 const period = computed(() => {
-  return dayjs.duration(inputPeriod.value,periodUnit.value).asSeconds()
+  return dayjs.duration(inputPeriod.value, periodUnit.value).asSeconds()
 })
 
 const openAdvanced = ref(false)
@@ -285,19 +285,32 @@ const checkParams = () => {
   return true
 }
 const clickCreate = throttle(() => {
+  console.error('-- period ',period.value)
+  createVesting({
+    amount: 100,
+    token: 'GYC',
+    investorName: 'ToTo',
+    investorAddress: 'E7H8aasfjnw4a4Vpro1SnaTHiJCvkXnhiiPK63L8zhvp',
+    start: dayjs().unix() + dayjs.duration(1, 'd').seconds(),
+    end: dayjs().unix() + dayjs.duration(3, 'd').seconds(),
+    period: dayjs.duration(1, 'd').asSeconds(),
+    cliff: dayjs().unix() + dayjs.duration(2, 'd').seconds(),
+    cliffPercent: 10,
+    tgePercent: 10
+  })
   if (checkParams()) {
-    createVesting({
-      amount: inputAmount.value,
-      token: inputToken.value,
-      investorName: inputInvestor.value,
-      investorAddress: inputAccount.value,
-      start: start.value,
-      end: end.value,
-      period: period.value,
-      cliff: cliff.value || 0,
-      cliffPercent: inputCliffPercent.value,
-      tgePercent: inputTgePercent.value
-    })
+    // createVesting({
+    //   amount: inputAmount.value,
+    //   token: inputToken.value,
+    //   investorName: inputInvestor.value,
+    //   investorAddress: inputAccount.value,
+    //   start: start.value,
+    //   end: end.value,
+    //   period: period.value,
+    //   cliff: cliff.value || 0,
+    //   cliffPercent: inputCliffPercent.value,
+    //   tgePercent: inputTgePercent.value
+    // })
   }
 })
 </script>

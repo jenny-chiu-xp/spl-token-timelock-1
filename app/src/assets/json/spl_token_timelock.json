@@ -82,19 +82,13 @@
         {
           "name": "vestingName",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         },
         {
           "name": "investorWalletAddress",
           "type": {
-            "array": [
-              "u8",
-              64
-            ]
+            "array": ["u8", 64]
           }
         },
         {
@@ -114,7 +108,11 @@
           "type": "u64"
         },
         {
-          "name": "tgeRate",
+          "name": "cliffReleaseRate",
+          "type": "u64"
+        },
+        {
+          "name": "tgeReleaseRate",
           "type": "u64"
         }
       ]
@@ -222,19 +220,13 @@
           {
             "name": "vestingName",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "investorWalletAddress",
             "type": {
-              "array": [
-                "u8",
-                64
-              ]
+              "array": ["u8", 64]
             }
           },
           {
@@ -302,7 +294,15 @@
             "type": "u64"
           },
           {
-            "name": "tgeRate",
+            "name": "cliffReleaseRate",
+            "type": "u64"
+          },
+          {
+            "name": "cliffAmount",
+            "type": "u64"
+          },
+          {
+            "name": "tgeReleaseRate",
             "type": "u64"
           },
           {
@@ -310,7 +310,7 @@
             "type": "u64"
           },
           {
-            "name": "unlockAmount",
+            "name": "periodicUnlockAmount",
             "type": "u64"
           }
         ]
@@ -382,8 +382,8 @@
     },
     {
       "code": 6003,
-      "name": "InvalidTGERate",
-      "msg": "The TGE rate of vesting must be less than 100"
+      "name": "InvalidReleaseRate",
+      "msg": "The release rate of vesting must be less than 100"
     },
     {
       "code": 6004,
@@ -472,6 +472,6 @@
     }
   ],
   "metadata": {
-    "address": "7ZKgDhm71m64SH96ipnEVdfTNaQMwxPij4hcCYDKXW4S"
+    "address": "GNfdo4WstygvtzesiYHAwMTTJwt4jBLCkyEnNVKjVbvw"
   }
 }

@@ -1,13 +1,18 @@
 <template>
   <div class="w-full flex box-border justify-between items-center header">
     <img src="/images/logo_header.png" width="190" />
-    <wallet-multi-button v-if="ready"></wallet-multi-button>
+    <wallet-multi-button v-if="showConnect"></wallet-multi-button>
   </div>
 </template>
 <script setup>
+import { computed } from 'vue'
 import { useWallet } from 'solana-wallets-vue'
 import { WalletMultiButton } from 'solana-wallets-vue'
-const { ready } = useWallet()
+import { WalletReadyState } from '@solana/wallet-adapter-base'
+const { ready, readyState } = useWallet()
+
+// readyState: Installed Loadable NotDetected Unsupported
+const showConnect = computed(() => ready || readyState.value === WalletReadyState.NotDetected)
 </script>
 <style>
 .header {
