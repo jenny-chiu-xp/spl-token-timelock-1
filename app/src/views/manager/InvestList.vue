@@ -6,8 +6,14 @@
         + {{ $t('invest.create') }}
       </div>
     </div>
-    <div class="w-full">列表</div>
+    <div class="w-full col">
+      <div v-for="(item,index) in 5" :key="index" class="w-full mb-space-32">
+        <invest-item :item="item"></invest-item>
+      </div>
+    </div>
   </div>
 </template>
-<script setup></script>
+<script setup>
+import InvestItem from './components/InvestItem.vue'
+</script>
 <style lang="scss"></style>

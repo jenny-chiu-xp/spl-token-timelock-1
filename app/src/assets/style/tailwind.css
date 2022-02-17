@@ -6,6 +6,7 @@
   --neutral-100: #1c1c1c;
   --light-9a: #9a9a9a;
   --green: #61e290;
+  --grey-28: #282828;
 }
 
 @tailwind base;

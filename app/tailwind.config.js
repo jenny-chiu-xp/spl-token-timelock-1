@@ -5,9 +5,10 @@ module.exports = {
       colors: {
         'neutral-100': 'var(--neutral-100)',
         'white': 'var(--white)',
-        'white-f4': 'var(--white-f)',
+        'white-f4': 'var(--white-f4)',
         'light-9a': 'var(--light-9a)',
-        'green': 'var(--green)'
+        'green': 'var(--green)',
+        'grey-28': 'var(grey-28)'
       }
     },
     fontSize: {

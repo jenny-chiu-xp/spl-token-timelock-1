@@ -38,10 +38,11 @@ export const useProgram = () => {
         console.error('--- granter publicKey  001 ---', granter)
         console.error('--- granter publicKey  001 toBase58 ---', granter.publicKey.toBase58())
 
-        const { amount, investorName, investorAddress, start, end, cliff, period, tgePercent } = params
+        const { amount, investorName, investorAddress, start, end, cliff, period, cliffPercent, tgePercent } = params
         console.error('--- params investorName ---', investorName)
+        console.error('--- params investorAddress ---', investorAddress)
         // local token key
-        const mint = new PublicKey('ETkPzML3sDMSZRMYxfpsADTCKj11fsxCbPpMb7QbsuqY')
+        const mint = new PublicKey('Dtofp7JwMqjZBQVGZjqqMW2S4diBtDBk5AhKBH4FUrhs')
 
 
         const granterToken = await Token.getAssociatedTokenAddress(
@@ -50,6 +51,9 @@ export const useProgram = () => {
             mint,
             granter.publicKey
         )
+
+        console.error('--- granterToken ---', granterToken)
+
 
         const recipient = new PublicKey(investorAddress)
 
@@ -71,11 +75,14 @@ export const useProgram = () => {
 
         // const vestId = uuid()
         const vestName = nacl.util.decodeUTF8('GoGo Corp')
-        const investor_wallet_address = nacl.util.decodeUTF8('0x519d6DCdf1acbFD8774751F1043deeeA8778ef4a')
+        const investor_wallet_address = nacl.util.decodeUTF8('2ZegnjQCPrSQcxAyS861HSUaMhRRRxczgNqB144DnpCp')
 
 
-        console.error('--- sign 1 ---', granter)
-        console.error('--- sign 2 ---', vesting)
+        console.error('--- sign granter ---', granter)
+        console.error('--- sign granter publicKey ---', granter.publicKey.toBase58())
+        console.error('--- sign vesting ---', vesting)
+        console.error('--- sign escrowVault ---', escrowVault)
+        console.error('--- payer wallet---', program.value.provider.wallet)
         const tx = await program.value.rpc.createVesting(
             new BN(amount),
             nonce,
@@ -86,6 +93,7 @@ export const useProgram = () => {
             new BN(end),
             new BN(period),
             new BN(cliff),
+            new BN(cliffPercent),
             new BN(tgePercent),
             {
                 accounts: {
@@ -102,7 +110,7 @@ export const useProgram = () => {
                     clock: SYSVAR_CLOCK_PUBKEY,
                     rent: SYSVAR_RENT_PUBKEY
                 },
-                signers: [granter, vesting]
+                signers: [program.value.provider.wallet.payer, vesting]
             }
         )
 
