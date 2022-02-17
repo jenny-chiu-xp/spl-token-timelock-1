@@ -24,6 +24,24 @@ const routes = [
                 name: 'CreateInvest',
                 meta: { keepAlive: true },
                 component: () => import('@/views/manager/CreateInvest.vue')
+            },
+            {
+                path: '/invest/list',
+                name: 'InvestList',
+                meta: { keepAlive: true },
+                component: () => import('@/views/manager/InvestList.vue')
+            },
+            {
+                path: '/invest/card',
+                name: 'InvestCard',
+                meta: { keepAlive: true },
+                component: () => import('@/views/manager/InvestCard.vue')
+            },
+            {
+                path: '/invest/yield',
+                name: 'InvestYield',
+                meta: { keepAlive: true },
+                component: () => import('@/views/manager/InvestYield.vue')
             }
         ]
     }

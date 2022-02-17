@@ -4,9 +4,8 @@
       <el-icon color="white"><arrow-left /></el-icon>
       <text class="text-white text-size-16">{{ $t('back') }}</text>
     </div>
-    <div class="w-full flex flex-col box-border content">
-      <div
-        class="w-full flex flex-col box-border text-light-9a text-size-12 card">
+    <div class="content-padding">
+      <div class="text-light-9a text-size-12 card-bg">
         <text class="text-white text-size-32 font-bold">{{
           $t('invest.create')
         }}</text>
@@ -177,12 +176,23 @@
       </div>
     </div>
   </div>
+
+  <confirm-dialog v-model:show="showConfirm" @sureClicked="showSuccess = true">
+    <template #title>{{ $t('invest.confirm.create') }}</template>
+    <template #hint>{{ $t('invest.confirm.hint') }}</template>
+  </confirm-dialog>
+
+  <success-dialog v-model:show="showSuccess">{{
+    $t('invest.create.success')
+  }}</success-dialog>
 </template>
 <script setup>
 import { ref, computed } from 'vue'
 import { throttle } from '@/utils'
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import ConfirmDialog from './components/ConfirmDialog.vue'
+import SuccessDialog from './components/SuccessDialog.vue'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import { useProgram } from '@/composable/anchorProgram'
@@ -192,6 +202,9 @@ dayjs.extend(duration)
 
 const { t } = useI18n()
 const { createVesting } = useProgram()
+
+const showConfirm = ref(false)
+const showSuccess = ref(false)
 
 const inputAmount = ref(0)
 const inputToken = ref('')
@@ -285,7 +298,8 @@ const checkParams = () => {
   return true
 }
 const clickCreate = throttle(() => {
-  console.error('-- period ',period.value)
+  console.error('-- period ', period.value)
+  showConfirm.value = true
   createVesting({
     amount: 100,
     token: 'GYC',
@@ -315,16 +329,7 @@ const clickCreate = throttle(() => {
 })
 </script>
 <style lang="scss" scoped>
-.content {
-  padding: 1.6rem 8rem;
-}
-.card {
-  border-radius: 1.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: #282828;
-  padding: 2rem 1.6rem;
-}
-
+@import 'manager.scss';
 :deep(.el-input) {
   background: transparent;
 }

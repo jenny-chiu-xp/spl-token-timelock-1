@@ -8,13 +8,14 @@ module.exports = {
         'white-f4': 'var(--white-f4)',
         'light-9a': 'var(--light-9a)',
         'green': 'var(--green)',
-        'grey-28': 'var(grey-28)'
+        'grey-28': 'var(--grey-28)'
       }
     },
     fontSize: {
       'size-12': '.6rem',
       'size-14': '.7rem',
       'size-16': '.8rem',
+      'size-20': '1rem',
       'size-24': '1.2rem',
       'size-32': '1.6rem',
       'size-48': '2.4rem'
@@ -25,6 +26,7 @@ module.exports = {
       'space-14': '.7rem',
       'space-16': '.8rem',
       'space-18': '.9rem',
+      'space-20': '1rem',
       'space-24': '1.2rem',
       'space-32': '1.6rem',
       'space-40': '2rem',
