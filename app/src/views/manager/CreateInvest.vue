@@ -103,7 +103,7 @@
             <div class="flex-grow ml-space-32">
               <el-select v-model="periodUnit">
                 <el-option
-                  v-for="(item, index) in UNITS"
+                  v-for="(item, index) in PERIOD_UNITS"
                   :key="index"
                   :label="item.label"
                   :value="item.value"></el-option>
@@ -195,6 +195,7 @@ import ConfirmDialog from './components/ConfirmDialog.vue'
 import SuccessDialog from './components/SuccessDialog.vue'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import { PERIOD_UNITS } from '@/store/dict'
 import { useProgram } from '@/composable/anchorProgram'
 import { useI18n } from 'vue-i18n'
 
@@ -221,15 +222,7 @@ const disableEnd = (date) => {
     : date.getTime() < Date.now()
 }
 const inputPeriod = ref(0)
-const UNITS = [
-  { value: 'd', label: t('day') },
-  { value: 'M', label: t('month') },
-  { value: 'w', label: t('week') },
-  { value: 'h', label: t('hour') },
-  { value: 'm', label: t('minute') },
-  { value: 's', label: t('second') }
-]
-const periodUnit = ref(UNITS[0].value)
+const periodUnit = ref(PERIOD_UNITS[0].value)
 const period = computed(() => {
   return dayjs.duration(inputPeriod.value, periodUnit.value).asSeconds()
 })
@@ -298,7 +291,7 @@ const checkParams = () => {
   return true
 }
 const clickCreate = throttle(() => {
-  console.error('-- period :',period.value)
+  console.error('-- period :', period.value)
   createVesting({
     amount: 100,
     token: 'GYC',

@@ -5,7 +5,8 @@
     <router-view v-slot="{ Component }">
       <transition name="el-fade-in-linear">
         <keep-alive>
-          <div class="flex-grow flex flex-col items-center z-10 box-border container">
+          <div
+            class="flex-grow flex flex-col items-center z-10 box-border container">
             <component :is="Component"></component>
           </div>
         </keep-alive>
@@ -16,22 +17,38 @@
   </div>
 </template>
 <script setup>
-import { watch } from 'vue'
+import { watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
+import { ROLE_ADMIN, ROLE_INVESTOR } from '@/store/mutation-types'
 import PageHeader from '@/components/PageHeader.vue'
 import PageFooter from '@/components/PageFooter.vue'
 import { useWallet } from 'solana-wallets-vue'
 import useUser from '@/composable/user'
 
-const { connected, publicKey } = useWallet()
+const { publicKey } = useWallet()
 const router = useRouter()
+const store = useStore()
 
 useUser(publicKey)
 
+const role = computed(() => store.getters.role)
+
 watch(
-  connected,
+  role,
   (v) => {
-    router.replace({ path: v ? '/invest/list' : '/home' })
+    let path = '/home'
+    switch (role.value) {
+      case ROLE_ADMIN:
+        path = '/invest/list'
+        break
+      case ROLE_INVESTOR:
+        path = '/invest/yield'
+        break
+      default:
+        break
+    }
+    router.replace({ path })
   },
   { immediate: true }
 )
