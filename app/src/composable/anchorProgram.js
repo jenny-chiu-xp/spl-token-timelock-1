@@ -109,6 +109,9 @@ export const useProgram = () => {
             wallet.value.payer
         )
 
+        console.error('--- tokenAddress', tokenAddress)
+        console.error('--- mintToken', mintToken)
+
         const recipient = new PublicKey(investAddress)
         const recipientToken = await Token.getAssociatedTokenAddress(
             mintToken.associatedProgramId,
@@ -116,6 +119,9 @@ export const useProgram = () => {
             mintPublicKey,
             recipient
         )
+
+        console.error('--- recipient investAddress', investAddress)
+        console.error('--- recipient recipientToken', recipientToken)
 
         const vesting = Keypair.generate()
         const [escrowVault, nonce] = await PublicKey.findProgramAddress(
@@ -137,7 +143,7 @@ export const useProgram = () => {
 
         console.error('oldEscrowVaultAmount', oldEscrowVaultAmount)
 
-        const oldRecipientTokenAccountInfo = await program.provider.connection.getAccountInfo(
+        const oldRecipientTokenAccountInfo = await connection.getAccountInfo(
             recipientToken
         )
 
@@ -162,7 +168,7 @@ export const useProgram = () => {
         console.log('seed', vesting.publicKey.toBuffer())
         console.log('vesting', vesting.publicKey.toBase58())
 
-        const tx = await program.rpc.withdraw(
+        const tx = await program.value.rpc.withdraw(
             withdrawAmount,
             {
                 accounts: {
@@ -196,7 +202,7 @@ export const useProgram = () => {
         console.error('newRecipientTokenAmount', newRecipientTokenAmount)
 
         const newEscrowVaultAmount = null
-        const newEscrowVaultAccountInfo = await program.provider.connection.getAccountInfo(
+        const newEscrowVaultAccountInfo = await connection.getAccountInfo(
             escrowVault
         )
 

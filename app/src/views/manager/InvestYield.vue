@@ -8,15 +8,15 @@
         {{ detail.investName }}
       </div>
       <div class="w-full flex justify-between mt-space-64">
-        <div class="flex-row">
-          <div class="text-green mr-space-14">{{ $t('invest.start') }}</div>
+        <div class="flex">
+          <div class="text-green mr-space-14">{{ $t('invest.start') }}:</div>
           <div class="flex flex-col text-white-f4">
             <div>{{ YMD(detail.start) }}</div>
             <div class="font-bold">{{ HM(detail.start) }}</div>
           </div>
         </div>
-        <div class="flex-row">
-          <div class="text-green mr-space-14">{{ $t('invest.end') }}</div>
+        <div class="flex">
+          <div class="text-green mr-space-14">{{ $t('invest.end') }}:</div>
           <div class="flex flex-col text-white-f4">
             <div>{{ YMD(detail.end) }}</div>
             <div class="font-bold">{{ HM(detail.end) }}</div>
@@ -27,7 +27,7 @@
       <div class="flex flex-row">
         <div class="label">{{ $t('invest.orderId') }}:</div>
         <div class="flex items-center" @click="copy(detail.id)">
-          <div>{{ detail.id }}:</div>
+          <div>{{ detail.id }}</div>
           <el-icon><copy-document /></el-icon>
         </div>
       </div>
@@ -76,7 +76,7 @@
   <confirm-dialog v-model:show="showConfirm" @sureClicked="onSureConfirm">
     <template #title>{{ $t('invest.confirm.withdraw') }}</template>
     <template #hint>{{ $t('invest.withdraw.hint') }}</template>
-    <template #sure>{{ {{ $t('invest.withdraw') }} }}</template>
+    <template #sure>{{ $t('invest.withdraw') }}</template>
   </confirm-dialog>
 
   <success-dialog v-model:show="showSuccess" @dismiss="$router.back()">{{
@@ -110,9 +110,9 @@ const showSuccess = ref(false)
 const detail = reactive({})
 const loadDetail = async () => {
   const loading = elLoading(t('loading'))
-  let res
+  let res = {}
   try {
-    res = await getOrderList({ pageSize: 1, investAddress: publicKey.value })
+    res = await getOrderList({ pageSize: 1, investAddress: publicKey.value.toBase58() })
   } catch (err) {
     console.error('get order list error: ' + err)
     const message = err.message || t('invest.load.fail')
@@ -140,6 +140,7 @@ const checkParams = () => {
 }
 
 const clickWithdrawn = () => {
+  console.error('--- 001 ---',detail)
   if (checkParams()) {
     showConfirm.value = true
   }
@@ -152,9 +153,9 @@ const onSureConfirm = throttle(() => {
 const withdrawAndRecord = async () => {
   const loading = elLoading(t('invest.withdrawing'))
   try {
-    await withdrawToken(detail.value, enableAmount.value)
+    await withdrawToken(detail, enableAmount.value)
     await orderWithdrawn({
-      id: detail.value.id,
+      id: detail.id,
       withdrawnAmount: enableAmount.value
     })
   } catch (err) {

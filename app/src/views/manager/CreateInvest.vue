@@ -20,14 +20,11 @@
               size="large"
               style="width: 100%"
               :controls="false"
-              :min="1"
-            ></el-input-number>
+              :min="1"></el-input-number>
           </div>
           <div class="flex-grow flex flex-col">
             <text>{{ $t('invest.token') }}</text>
-            <text class="text-green mt-space-16"
-              >{{ tokenName }} : {{ tokenAddress }}</text
-            >
+            <text class="text-green mt-space-16">{{ tokenName }} : {{ tokenAddress }}</text>
           </div>
         </div>
 
@@ -37,8 +34,7 @@
             v-model="inputInvestor"
             class="w-full mt-space-8"
             size="large"
-            :placeholder="$t('invest.input.investor')"
-          ></el-input>
+            :placeholder="$t('invest.input.investor')"></el-input>
         </div>
 
         <div class="w-full flex flex-col mt-space-32">
@@ -47,8 +43,7 @@
             v-model="inputAccount"
             class="w-full mt-space-8"
             size="large"
-            :placeholder="$t('invest.input.account')"
-          ></el-input>
+            :placeholder="$t('invest.input.account')"></el-input>
         </div>
 
         <div class="w-full flex flex-row justify-between mt-space-32">
@@ -59,16 +54,14 @@
               type="date"
               style="width: 100%"
               :placeholder="$t('invest.input.start.date')"
-              :disabled-date="disableStart"
-            ></el-date-picker>
+              :disabled-date="disableStart"></el-date-picker>
           </div>
           <div class="flex-grow flex flex-col">
             <text class="mb-space-8">{{ $t('invest.start.time') }}</text>
             <el-time-picker
               v-model="startTime"
               style="width: 100%"
-              :placeholder="$t('invest.input.start.time')"
-            ></el-time-picker>
+              :placeholder="$t('invest.input.start.time')"></el-time-picker>
           </div>
         </div>
 
@@ -80,16 +73,14 @@
               type="date"
               style="width: 100%"
               :placeholder="$t('invest.input.end.date')"
-              :disabled-date="disableEnd"
-            ></el-date-picker>
+              :disabled-date="disableEnd"></el-date-picker>
           </div>
           <div class="flex-grow flex flex-col">
             <text class="mb-space-8">{{ $t('invest.end.time') }}</text>
             <el-time-picker
               v-model="endTime"
               style="width: 100%"
-              :placeholder="$t('invest.input.end.time')"
-            ></el-time-picker>
+              :placeholder="$t('invest.input.end.time')"></el-time-picker>
           </div>
         </div>
 
@@ -103,8 +94,7 @@
                 size="large"
                 style="width: 100%"
                 :controls="false"
-                :min="1"
-              ></el-input-number>
+                :min="1"></el-input-number>
             </div>
             <div class="flex-grow ml-space-32">
               <el-select v-model="periodUnit">
@@ -112,8 +102,7 @@
                   v-for="(item, index) in PERIOD_UNITS"
                   :key="index"
                   :label="item.label"
-                  :value="item.value"
-                ></el-option>
+                  :value="item.value"></el-option>
               </el-select>
             </div>
           </div>
@@ -133,16 +122,14 @@
                 type="date"
                 style="width: 100%"
                 :placeholder="$t('invest.input.cliff.date')"
-                :disabled-date="disableCliff"
-              ></el-date-picker>
+                :disabled-date="disableCliff"></el-date-picker>
             </div>
             <div class="flex-grow flex flex-col mx-space-32">
               <text class="mb-space-8">{{ $t('invest.cliff.time') }}</text>
               <el-time-picker
                 v-model="cliffTime"
                 style="width: 100%"
-                :placeholder="$t('invest.input.cliff.time')"
-              ></el-time-picker>
+                :placeholder="$t('invest.input.cliff.time')"></el-time-picker>
             </div>
             <div class="flex-grow flex flex-col">
               <text class="mb-space-8">{{ $t('invest.cliff.percent') }}</text>
@@ -153,8 +140,7 @@
                   :controls="false"
                   :min="0"
                   :max="100"
-                  size="large"
-                ></el-input-number>
+                  size="large"></el-input-number>
                 <div class="ml-space-8">%</div>
               </div>
             </div>
@@ -170,8 +156,7 @@
                   size="large"
                   :controls="false"
                   :min="0"
-                  :max="100"
-                ></el-input-number>
+                  :max="100"></el-input-number>
                 <div class="ml-space-8">%</div>
               </div>
             </div>
@@ -191,7 +176,7 @@
   <confirm-dialog v-model:show="showConfirm" @sureClicked="onSureConfirm">
     <template #title>{{ $t('invest.confirm.create') }}</template>
     <template #hint>{{ $t('invest.confirm.hint') }}</template>
-    <template #sure>{{ {{ $t('invest.create') }} }}</template>
+    <template #sure>{{ $t('invest.create') }}</template>
   </confirm-dialog>
 
   <success-dialog v-model:show="showSuccess" @dismiss="$router.back()">{{

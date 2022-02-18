@@ -99,7 +99,4 @@ const { YMDHM } = useDayjs()
 </script>
 <style lang="scss" scoped>
 @import 'manager.scss';
-.label {
-  width: 20%;
-}
 </style>
