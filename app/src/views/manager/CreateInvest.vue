@@ -9,7 +9,7 @@
         <text class="text-white text-size-32 font-bold">{{
           $t('invest.create')
         }}</text>
-        <text class="mt-space-24">0x21523423423434</text>
+        <text class="mt-space-24">{{ publicKey.toBase58() }}</text>
 
         <div class="w-full flex flex-row justify-between mt-space-32">
           <div class="flex-grow flex flex-col mr-space-32">
@@ -24,11 +24,7 @@
           </div>
           <div class="flex-grow flex flex-col">
             <text>{{ $t('invest.token') }}</text>
-            <el-input
-              v-model="inputToken"
-              class="w-full mt-space-8"
-              size="large"
-              :placeholder="$t('invest.input.token')"></el-input>
+            <text class="text-green mt-space-16">{{ tokenName }} : {{ tokenAddress }}</text>
           </div>
         </div>
 
@@ -182,7 +178,7 @@
     <template #hint>{{ $t('invest.confirm.hint') }}</template>
   </confirm-dialog>
 
-  <success-dialog v-model:show="showSuccess">{{
+  <success-dialog v-model:show="showSuccess" @dismiss="$router.back()">{{
     $t('invest.create.success')
   }}</success-dialog>
 </template>
@@ -199,6 +195,9 @@ import { PERIOD_UNITS } from '@/store/dict'
 import { useProgram } from '@/composable/anchorProgram'
 import { useI18n } from 'vue-i18n'
 import { createOrder, orderSuccess } from '@/api'
+import { useWallet } from 'solana-wallets-vue'
+
+const { publicKey } = useWallet()
 
 dayjs.extend(duration)
 
@@ -208,8 +207,9 @@ const { createVesting } = useProgram()
 const showConfirm = ref(false)
 const showSuccess = ref(false)
 
+const tokenName = ref(import.meta.env.VITE_MINT_TOKEN_NAME)
+const tokenAddress = ref(import.meta.env.VITE_MINT_TOKEN)
 const inputAmount = ref(0)
-const inputToken = ref('')
 const inputInvestor = ref('')
 const inputAccount = ref('')
 const startDate = ref('')
@@ -266,10 +266,6 @@ const checkParams = () => {
     ElMessage.error(`${t('invest.num.hint')}`)
     return false
   }
-  if (!inputToken.value || inputToken.value.length === 0) {
-    ElMessage.error(`${t('invest.input.token')}`)
-    return false
-  }
   if (!inputInvestor.value || inputInvestor.value.length === 0) {
     ElMessage.error(`${t('invest.input.investor')}`)
     return false
@@ -289,6 +285,10 @@ const checkParams = () => {
     ElMessage.error(`${t('invest.cliff.hint')}`)
     return false
   }
+  if (period.value && period.value > end.value.unix() - start.value.unix()) {
+    ElMessage.error(`${t('invest.period.hint')}`)
+    return false
+  }
   return true
 }
 
@@ -298,19 +298,6 @@ const clickCreate = () => {
   }
 }
 const onSureConfirm = throttle(() => {
-  console.error('-- period :', period.value)
-  // createVesting({
-  //   amount: 100,
-  //   token: 'GYC',
-  //   investorName: 'ToTo',
-  //   investorAddress: 'E7H8aasfjnw4a4Vpro1SnaTHiJCvkXnhiiPK63L8zhvp',
-  //   start: dayjs().unix() + dayjs.duration(1, 'days').asSeconds(),
-  //   end: dayjs().unix() + dayjs.duration(3, 'd').asSeconds(),
-  //   period: dayjs.duration(1, 'd').asSeconds(),
-  //   cliff: dayjs().unix() + dayjs.duration(2, 'd').asSeconds(),
-  //   cliffPercent: 10,
-  //   tgePercent: 10
-  // })
   const params = {
     total: inputAmount.value,
     vestId: Date.now(),
@@ -319,11 +306,13 @@ const onSureConfirm = throttle(() => {
     startAt: start.value,
     endAt: end.value,
     period: period.value,
-    cliffAt: cliff.value || 0,
     cliffRate: inputCliffPercent.value,
     tgeRate: inputTgePercent.value,
-    tokenName: import.meta.env.VITE_MINT_TOKEN_NAME,
-    tokenAddress: import.meta.env.VITE_MINT_TOKE
+    tokenName: tokenName.value,
+    tokenAddress: tokenAddress.value
+  }
+  if(cliff.value){
+    params.cliffAt = cliff.value
   }
   createAndUpdate(params)
 })
@@ -339,8 +328,8 @@ const createAndUpdate = async (params) => {
     const { id } = res
     const { tx, success } = await createVesting(params)
     const status = success ? 1 : 0
-    console.error('--- create order ', id, tx, success, status)
     await orderSuccess({ id, tx, status })
+    showSuccess.value = true
   } catch (err) {
     console.error('order success', err)
     const message = err.message || t('invest.confirm.fail')

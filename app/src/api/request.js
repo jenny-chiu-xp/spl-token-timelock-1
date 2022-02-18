@@ -61,7 +61,7 @@ export const createRequest = (url, params, method) => {
             if (code === 1000) {
                 resolve(data)
             } else {
-                const message = i18n.te(`result.error.${code}`) ? i18n.t(`result.error.${code}`) : msg
+                const message = i18n.global.te(`result.error.${code}`) ? i18n.global.t(`result.error.${code}`) : msg
                 reject(Error(`${message || msg || ''}`))
             }
         }).catch(err => {

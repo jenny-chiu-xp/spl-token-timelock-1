@@ -6,7 +6,7 @@
         <div class="font-bold text-size-32 text-white-f4">
           {{ item.investName }}
         </div>
-        <div>{{ item.tx }}</div>
+        <div>{{ item.id }}</div>
       </div>
       <div class="flex-col">
         <div>{{ $t('invest.start') }}：{{ YMDHM(item.start) }}</div>

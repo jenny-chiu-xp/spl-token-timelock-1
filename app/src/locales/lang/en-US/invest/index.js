@@ -49,10 +49,16 @@ export default {
     'invest.confirm.hint': '請仔細覈對創建的內容',
     'invest.confirm.fail': '創建失敗',
     'invest.creating': '訂單創建中...',
+    'invest.no.order': '沒有找到你的訂單，請聯繫管理員',
+    'invest.load.fail': '加載失敗',
+    'invest.withdraw.fail': '提取失敗',
+    'invest.withdraw.success': '提取成功',
+    'invest.withdrawing': '提取中...',
     'day': '天',
     'month': '月',
     'week': '周',
     'hour': '時',
     'minute': '分',
-    'second': '秒'
+    'second': '秒',
+    'invest.period.hint': '週期時長需要在開始結束內',
 }

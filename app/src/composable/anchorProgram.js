@@ -21,7 +21,7 @@ export const useProgram = () => {
     const { program, wallet, connection } = useSolanaWallet()
 
     const createVesting = async (params) => {
-        console.log('--- params ---', params)
+        console.log('params:', params)
         const granter = wallet.value
 
         const { total, vestId, investName, investAddress, startAt, endAt, cliffAt, period, cliffRate, tgeRate, tokenAddress } = params
@@ -34,7 +34,6 @@ export const useProgram = () => {
             wallet.value.payer
         )
 
-        console.error('--- mintToken ---', mintToken)
         const granterToken = await Token.getAssociatedTokenAddress(
             mintToken.associatedProgramId,
             mintToken.programId,
@@ -49,7 +48,6 @@ export const useProgram = () => {
             mintPublicKey,
             recipient
         )
-        console.error('--- recipientToken ---', recipientToken)
 
         const vesting = Keypair.generate()
         const [escrowVault, nonce] = await PublicKey.findProgramAddress(
@@ -63,10 +61,10 @@ export const useProgram = () => {
             new BN(vestId),
             nacl.util.decodeUTF8(investName),
             nacl.util.decodeUTF8(investAddress),
-            new BN(startAt),
-            new BN(endAt),
+            new BN(startAt.unix()),
+            new BN(endAt.unix()),
             new BN(period),
-            new BN(cliffAt),
+            new BN(cliffAt ? cliffAt.unix() : 0),
             new BN(cliffRate),
             new BN(tgeRate),
             {
@@ -87,7 +85,7 @@ export const useProgram = () => {
                 signers: [program.value.provider.wallet.payer, vesting]
             }
         )
-        console.error('tx: ', tx)
+        console.log('tx: ', tx)
 
         const _escrowVaultToken = await connection.getAccountInfo(
             escrowVault
@@ -95,7 +93,7 @@ export const useProgram = () => {
         const _escrowVaultData = token.parseTokenAccountData(
             _escrowVaultToken.data
         )
-        console.error('end _escrowVaultTokenData', _escrowVaultData.amount)
+        console.log('escrowVaultTokenData amount:', _escrowVaultData.amount)
         const success = _escrowVaultData.amount === total
         return { tx, success }
     }

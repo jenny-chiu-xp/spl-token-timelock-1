@@ -19,7 +19,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['dismiss', 'update:show', 'sureClicked'])
+const emit = defineEmits(['dismiss', 'update:show'])
 
 const { show } = toRefs(props)
 

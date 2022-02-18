@@ -1,5 +1,8 @@
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import { useI18n } from 'vue-i18n'
+import { ElMessage } from 'element-plus'
+import useClipboard from 'vue-clipboard3'
 
 dayjs.extend(duration)
 
@@ -21,5 +24,23 @@ export const useDayjs = () => {
         YMDHM,
         YMD,
         HM
+    }
+}
+
+export const useTools = () => {
+    const { t } = useI18n()
+    const { toClipboard } = useClipboard()
+
+    const copy = async (text) => {
+        await toClipboard(text)
+        ElMessage({
+            message: t('copy.success'),
+            type: 'success'
+        })
+    }
+
+    return {
+        t,
+        copy
     }
 }

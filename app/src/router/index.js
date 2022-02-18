@@ -32,7 +32,7 @@ const routes = [
                 component: () => import('@/views/manager/InvestList.vue')
             },
             {
-                path: '/invest/card',
+                path: '/invest/card/:id',
                 name: 'InvestCard',
                 meta: { keepAlive: true },
                 component: () => import('@/views/manager/InvestCard.vue')

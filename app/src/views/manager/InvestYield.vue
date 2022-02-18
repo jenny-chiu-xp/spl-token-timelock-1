@@ -25,71 +25,96 @@
       </div>
       <div class="my-space-32 sep-line"></div>
       <div class="flex flex-row">
-        <div class="label">{{ $t('invest.orderId') }}</div>
-        <div>{{ detail.tx }}</div>
+        <div class="label">{{ $t('invest.orderId') }}:</div>
+        <div class="flex items-center" @click="copy(detail.id)">
+          <div>{{ detail.id }}:</div>
+          <el-icon><copy-document /></el-icon>
+        </div>
       </div>
       <div class="flex flex-row mt-space-20">
-        <div class="label">{{ $t('invest.investor.address') }}</div>
-        <div>{{ detail.investAddress }}</div>
+        <div class="label">{{ $t('invest.investor.address') }}:</div>
+        <div class="flex items-center" @click="copy(detail.investAddress)">
+          <div>{{ detail.investAddress }}:</div>
+          <el-icon><copy-document /></el-icon>
+        </div>
       </div>
       <div class="flex flex-row mt-space-20">
-        <div class="label">{{ $t('invest.total.amount') }}</div>
+        <div class="label">{{ $t('invest.total.amount') }}:</div>
         <div>{{ detail.total }}{{ detail.tokenName }}</div>
       </div>
       <div class="flex flex-row mt-space-20">
-        <div class="label">{{ $t('invest.cliff.unlock') }}</div>
+        <div class="label">{{ $t('invest.cliff.unlock') }}:</div>
         <div>{{ detail.total }}{{ detail.tokenName }}</div>
       </div>
       <div class="flex flex-row mt-space-20">
-        <div class="label">{{ $t('invest.tge.unlock') }}</div>
+        <div class="label">{{ $t('invest.tge.unlock') }}:</div>
         <div>{{ detail.tge }}{{ detail.tokenName }}</div>
       </div>
       <div class="flex flex-row mt-space-20">
-        <div class="label">{{ $t('invest.unlock.rate') }}</div>
+        <div class="label">{{ $t('invest.unlock.rate') }}:</div>
         <div>{{ detail.tge }}{{ detail.tokenName }}</div>
       </div>
       <div class="flex flex-row mt-space-20">
-        <div class="label">{{ $t('invest.unfreeze.next') }}</div>
+        <div class="label">{{ $t('invest.unfreeze.next') }}:</div>
         <div>{{ detail.tge }}{{ detail.tokenName }}</div>
       </div>
       <div class="flex-row mt-space-20">
-        <div class="label">{{ $t('invest.withdraw.amount') }}</div>
+        <div class="label">{{ $t('invest.withdraw.amount') }}:</div>
         <div>{{ detail.withdrawnAmount }}{{ detail.tokenName }}</div>
       </div>
       <div class="flex-row mt-space-20">
-        <div class="label">{{ $t('invest.withdraw.enable') }}</div>
+        <div class="label">{{ $t('invest.withdraw.enable') }}:</div>
         <div>{{ detail.withdrawnAmount }}{{ detail.tokenName }}</div>
       </div>
 
-      <div class="btn-common mt-space-40">{{ $t('invest.withdraw') }}</div>
+      <div class="mt-space-40 px-space-64 btn-common">
+        {{ $t('invest.withdraw') }}
+      </div>
     </div>
   </div>
 </template>
 <script setup>
-import { ref, reactive, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { getOrderDetail } from '@/api'
+import { reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useWallet } from 'solana-wallets-vue'
+import { ElMessage, ElLoading } from 'element-plus'
+import { CopyDocument } from '@element-plus/icons-vue'
+import { getOrderList } from '@/api'
 import { useDayjs } from '@/composable/tools'
+import { useTools } from '@/composable/tools'
 
-const route = useRoute()
+const { copy, t } = useTools()
 
-const id = ref('')
-id.value = route.params.id
+const router = useRouter()
+const { publicKey } = useWallet()
 
 const detail = reactive({})
 const loadDetail = async () => {
-  const res = await getOrderDetail(id.value)
-  Object.assign(detail, res)
+  const loading = ElLoading.service({
+    lock: true,
+    text: t('invest.creating'),
+    background: 'rgba(0, 0, 0, 0.5)'
+  })
+  let res
+  try {
+    res = await getOrderList({ pageSize: 1, investAddress: publicKey.value })
+  } catch (err) {
+    console.error('get order list error: ' + err)
+    const message = err.message || t('invest.load.fail')
+    ElMessage.error(message)
+  } finally {
+    loading.close()
+  }
+  const list = res.list || []
+  if (list.length > 0) {
+    Object.assign(detail, list[0])
+  } else {
+    ElMessage.error(t('invest.no.order'))
+    router.replace({ path: '/home' })
+  }
 }
 
-watch(
-  id,
-  (v) => {
-    loadDetail()
-  },
-  { immediate: true }
-)
-
+onMounted(loadDetail)
 const { YMD, HM } = useDayjs()
 </script>
 <style lang="scss" scoped>
