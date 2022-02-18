@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import { useI18n } from 'vue-i18n'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElLoading } from 'element-plus'
 import useClipboard from 'vue-clipboard3'
 
 dayjs.extend(duration)
@@ -39,8 +39,15 @@ export const useTools = () => {
         })
     }
 
+    const elLoading = (text) => ElLoading.service({
+        lock: true,
+        text,
+        background: 'rgba(0, 0, 0, 0.5)'
+    })
+
     return {
         t,
-        copy
+        copy,
+        elLoading
     }
 }

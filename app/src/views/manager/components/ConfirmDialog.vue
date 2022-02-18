@@ -1,7 +1,10 @@
 <template>
   <transition name="el-fade-in-linear">
-    <div v-if="isShow" class="w-full h-full flex justify-center items-center dialog">
-      <div class="flex flex-col box-border bg-grey-28 justify-center items-center content">
+    <div
+      v-if="isShow"
+      class="w-full h-full flex justify-center items-center dialog">
+      <div
+        class="flex flex-col box-border bg-grey-28 justify-center items-center content">
         <div class="text-size-32 font-bold title">
           <slot name="title"></slot>
         </div>
@@ -9,8 +12,12 @@
           <slot name="hint"></slot>
         </div>
         <div class="flex flex-row">
-          <div class="btn-common btn mr-space-32" @click.stop="clickSure">{{ $t('invest.create') }}</div>
-          <div class="btn-common btn cancel" @click.stop="clickClose">{{ $t('cancel') }}</div>
+          <div class="btn-common btn mr-space-32" @click.stop="clickSure">
+            <slot name="sure"></slot>
+          </div>
+          <div class="btn-common btn cancel" @click.stop="clickClose">
+            {{ $t('cancel') }}
+          </div>
         </div>
       </div>
     </div>

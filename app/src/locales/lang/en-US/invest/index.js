@@ -61,4 +61,7 @@ export default {
     'minute': '分',
     'second': '秒',
     'invest.period.hint': '週期時長需要在開始結束內',
+    'invest.confirm.withdraw': '確認提取',
+    'invest.no.withdraw': '沒有可提取的金額',
+    'invest.withdraw.hint': '確認全部提取到錢包？'
 }

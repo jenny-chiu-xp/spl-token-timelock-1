@@ -67,34 +67,49 @@
         <div>{{ detail.withdrawnAmount }}{{ detail.tokenName }}</div>
       </div>
 
-      <div class="mt-space-40 px-space-64 btn-common">
+      <div class="mt-space-40 px-space-64 btn-common" @click="clickWithdrawn">
         {{ $t('invest.withdraw') }}
       </div>
     </div>
   </div>
+
+  <confirm-dialog v-model:show="showConfirm" @sureClicked="onSureConfirm">
+    <template #title>{{ $t('invest.confirm.withdraw') }}</template>
+    <template #hint>{{ $t('invest.withdraw.hint') }}</template>
+    <template #sure>{{ {{ $t('invest.withdraw') }} }}</template>
+  </confirm-dialog>
+
+  <success-dialog v-model:show="showSuccess" @dismiss="$router.back()">{{
+    $t('invest.withdraw.success')
+  }}</success-dialog>
 </template>
 <script setup>
-import { reactive, onMounted } from 'vue'
+import { reactive, ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWallet } from 'solana-wallets-vue'
-import { ElMessage, ElLoading } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
-import { getOrderList } from '@/api'
+import ConfirmDialog from './components/ConfirmDialog.vue'
+import SuccessDialog from './components/SuccessDialog.vue'
+import { getOrderList, orderWithdrawn } from '@/api'
 import { useDayjs } from '@/composable/tools'
 import { useTools } from '@/composable/tools'
+import { throttle } from '@/utils'
+import { useProgram } from '@/composable/anchorProgram'
 
-const { copy, t } = useTools()
+const { copy, t, elLoading } = useTools()
+const { withdrawToken } = useProgram()
 
 const router = useRouter()
 const { publicKey } = useWallet()
+const { YMD, HM } = useDayjs()
+
+const showConfirm = ref(false)
+const showSuccess = ref(false)
 
 const detail = reactive({})
 const loadDetail = async () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: t('invest.creating'),
-    background: 'rgba(0, 0, 0, 0.5)'
-  })
+  const loading = elLoading(t('loading'))
   let res
   try {
     res = await getOrderList({ pageSize: 1, investAddress: publicKey.value })
@@ -114,8 +129,44 @@ const loadDetail = async () => {
   }
 }
 
+const enableAmount = computed(() => 1)
+
+const checkParams = () => {
+  if (enableAmount.value <= 0) {
+    ElMessage.error(t('invest.no.withdraw'))
+    return false
+  }
+  return true
+}
+
+const clickWithdrawn = () => {
+  if (checkParams()) {
+    showConfirm.value = true
+  }
+}
+
+const onSureConfirm = throttle(() => {
+  withdrawAndRecord()
+})
+
+const withdrawAndRecord = async () => {
+  const loading = elLoading(t('invest.withdrawing'))
+  try {
+    await withdrawToken(detail.value, enableAmount.value)
+    await orderWithdrawn({
+      id: detail.value.id,
+      withdrawnAmount: enableAmount.value
+    })
+  } catch (err) {
+    console.error('order success', err)
+    const message = err.message || t('invest.confirm.fail')
+    ElMessage.error(message)
+  } finally {
+    loading.close()
+  }
+}
+
 onMounted(loadDetail)
-const { YMD, HM } = useDayjs()
 </script>
 <style lang="scss" scoped>
 @import 'manager.scss';

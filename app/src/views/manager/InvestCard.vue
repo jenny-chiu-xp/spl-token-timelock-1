@@ -24,7 +24,7 @@
         <div class="flex flex-row">
           <div class="label">{{ $t('invest.orderId') }}:</div>
           <div class="flex items-center" @click="copy(detail.id)">
-            <div>{{ detail.id }}:</div>
+            <div>{{ detail.id }}</div>
             <el-icon><copy-document /></el-icon>
           </div>
         </div>

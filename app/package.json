@@ -26,7 +26,6 @@
     "vue-clipboard3": "^1.0.1",
     "vue-i18n": "^9.2.0-beta.30",
     "vue-router": "^4.0.12",
-    "vue3-clipboard": "^1.0.0",
     "vuex": "^4.0.2"
   },
   "devDependencies": {
