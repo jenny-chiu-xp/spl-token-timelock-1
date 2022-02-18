@@ -177,7 +177,7 @@
     </div>
   </div>
 
-  <confirm-dialog v-model:show="showConfirm" @sureClicked="showSuccess = true">
+  <confirm-dialog v-model:show="showConfirm" @sureClicked="onSureConfirm">
     <template #title>{{ $t('invest.confirm.create') }}</template>
     <template #hint>{{ $t('invest.confirm.hint') }}</template>
   </confirm-dialog>
@@ -190,7 +190,7 @@
 import { ref, computed } from 'vue'
 import { throttle } from '@/utils'
 import { ArrowLeft } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElLoading } from 'element-plus'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 import SuccessDialog from './components/SuccessDialog.vue'
 import dayjs from 'dayjs'
@@ -198,6 +198,7 @@ import duration from 'dayjs/plugin/duration'
 import { PERIOD_UNITS } from '@/store/dict'
 import { useProgram } from '@/composable/anchorProgram'
 import { useI18n } from 'vue-i18n'
+import { createOrder, orderSuccess } from '@/api'
 
 dayjs.extend(duration)
 
@@ -290,35 +291,64 @@ const checkParams = () => {
   }
   return true
 }
-const clickCreate = throttle(() => {
-  console.error('-- period :', period.value)
-  createVesting({
-    amount: 100,
-    token: 'GYC',
-    investorName: 'ToTo',
-    investorAddress: 'E7H8aasfjnw4a4Vpro1SnaTHiJCvkXnhiiPK63L8zhvp',
-    start: dayjs().unix() + dayjs.duration(1, 'days').asSeconds(),
-    end: dayjs().unix() + dayjs.duration(3, 'd').asSeconds(),
-    period: dayjs.duration(1, 'd').asSeconds(),
-    cliff: dayjs().unix() + dayjs.duration(2, 'd').asSeconds(),
-    cliffPercent: 10,
-    tgePercent: 10
-  })
+
+const clickCreate = () => {
   if (checkParams()) {
-    // createVesting({
-    //   amount: inputAmount.value,
-    //   token: inputToken.value,
-    //   investorName: inputInvestor.value,
-    //   investorAddress: inputAccount.value,
-    //   start: start.value,
-    //   end: end.value,
-    //   period: period.value,
-    //   cliff: cliff.value || 0,
-    //   cliffPercent: inputCliffPercent.value,
-    //   tgePercent: inputTgePercent.value
-    // })
+    showConfirm.value = true
   }
+}
+const onSureConfirm = throttle(() => {
+  console.error('-- period :', period.value)
+  // createVesting({
+  //   amount: 100,
+  //   token: 'GYC',
+  //   investorName: 'ToTo',
+  //   investorAddress: 'E7H8aasfjnw4a4Vpro1SnaTHiJCvkXnhiiPK63L8zhvp',
+  //   start: dayjs().unix() + dayjs.duration(1, 'days').asSeconds(),
+  //   end: dayjs().unix() + dayjs.duration(3, 'd').asSeconds(),
+  //   period: dayjs.duration(1, 'd').asSeconds(),
+  //   cliff: dayjs().unix() + dayjs.duration(2, 'd').asSeconds(),
+  //   cliffPercent: 10,
+  //   tgePercent: 10
+  // })
+  const params = {
+    total: inputAmount.value,
+    vestId: Date.now(),
+    investName: inputInvestor.value,
+    investAddress: inputAccount.value,
+    startAt: start.value,
+    endAt: end.value,
+    period: period.value,
+    cliffAt: cliff.value || 0,
+    cliffRate: inputCliffPercent.value,
+    tgeRate: inputTgePercent.value,
+    tokenName: import.meta.env.VITE_MINT_TOKEN_NAME,
+    tokenAddress: import.meta.env.VITE_MINT_TOKE
+  }
+  createAndUpdate(params)
 })
+
+const createAndUpdate = async (params) => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: t('invest.creating'),
+    background: 'rgba(0, 0, 0, 0.5)'
+  })
+  try {
+    const res = await createOrder(params)
+    const { id } = res
+    const { tx, success } = await createVesting(params)
+    const status = success ? 1 : 0
+    console.error('--- create order ', id, tx, success, status)
+    await orderSuccess({ id, tx, status })
+  } catch (err) {
+    console.error('order success', err)
+    const message = err.message || t('invest.confirm.fail')
+    ElMessage.error(message)
+  } finally {
+    loading.close()
+  }
+}
 </script>
 <style lang="scss" scoped>
 @import 'manager.scss';

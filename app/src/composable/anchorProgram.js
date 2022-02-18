@@ -1,5 +1,4 @@
 import { useSolanaWallet } from '@/composable/solana'
-// import { useWallet } from 'solana-wallets-vue'
 import { BN } from '@project-serum/anchor'
 import { token } from '@project-serum/common'
 import {
@@ -19,33 +18,15 @@ import naclUtil from 'tweetnacl-util'
 nacl.util = naclUtil
 
 export const useProgram = () => {
-    const { program, wallet, connection, provider } = useSolanaWallet()
+    const { program, wallet, connection } = useSolanaWallet()
 
     const createVesting = async (params) => {
-
-        console.error('--- params ---', JSON.stringify(params))
-        console.error('--- program ---', program.value)
-        console.error('--- provider ---', provider.value)
-
-
-        program.value.addEventListener('CreateVestingEvent', (event, slot) => {
-            console.log('slot: ', slot)
-            console.log('event data: ', event.data.toNumber())
-            console.log('event status: ', event.status)
-        })
-
+        console.log('--- params ---', params)
         const granter = wallet.value
 
-        console.error('--- granter publicKey  001 ---', granter)
-        console.error('--- granter publicKey  001 toBase58 ---', granter.publicKey.toBase58())
+        const { total, vestId, investName, investAddress, startAt, endAt, cliffAt, period, cliffRate, tgeRate, tokenAddress } = params
 
-        const { amount, investorName, investorAddress, start, end, cliff, period, cliffPercent, tgePercent } = params
-        console.error('--- params investorName ---', investorName)
-        console.error('--- params investorAddress ---', investorAddress)
-
-        // local token key
-        const mintPublicKey = new PublicKey(import.meta.env.VITE_MINT_TOKEN)
-
+        const mintPublicKey = new PublicKey(tokenAddress)
         const mintToken = new Token(
             connection,
             mintPublicKey,
@@ -54,9 +35,6 @@ export const useProgram = () => {
         )
 
         console.error('--- mintToken ---', mintToken)
-
-        console.error('--- ASSOCIATED_TOKEN_PROGRAM_ID ---', ASSOCIATED_TOKEN_PROGRAM_ID)
-        console.error('--- TOKEN_PROGRAM_ID ---', TOKEN_PROGRAM_ID)
         const granterToken = await Token.getAssociatedTokenAddress(
             mintToken.associatedProgramId,
             mintToken.programId,
@@ -64,91 +42,33 @@ export const useProgram = () => {
             granter.publicKey
         )
 
-        console.error('--- wallet.value.publicKey ---', wallet.value.publicKey)
-
-
-        console.error('--- granterToken ---', granterToken)
-        console.error('--- granterToken publickey---', granterToken.toBase58())
-
-
-        const recipient = new PublicKey(investorAddress)
-
-        console.error('--- recipient ---', recipient)
-        console.error('--- recipient ---', recipient.toBase58())
+        const recipient = new PublicKey(investAddress)
         const recipientToken = await Token.getAssociatedTokenAddress(
             mintToken.associatedProgramId,
             mintToken.programId,
             mintPublicKey,
             recipient
         )
-
         console.error('--- recipientToken ---', recipientToken)
 
         const vesting = Keypair.generate()
-
         const [escrowVault, nonce] = await PublicKey.findProgramAddress(
             [vesting.publicKey.toBuffer()],
             program.value.programId
         )
 
-        const vestId = Date.now()
-        const vestName = nacl.util.decodeUTF8('GoGo Corp')
-        const investor_wallet_address = nacl.util.decodeUTF8('2ZegnjQCPrSQcxAyS861HSUaMhRRRxczgNqB144DnpCp')
-
-        // ------------------before start -------------------//
-
-        const _escrowVaultToken = await connection.getAccountInfo(
-            escrowVault
-        )
-        console.error('start _escrowVaultToken', _escrowVaultToken)
-
-        const _granterToken = await connection.getAccountInfo(
-            granterToken
-        )
-
-        console.error('start _granterToken', _granterToken)
-
-        const _vesting = await connection.getAccountInfo(
-            vesting.publicKey
-        )
-
-        console.error('start _vesting', _vesting)
-
-        // const _escrowVaultTokenData = Token.parseTokenAccountData(
-        //     _escrowVaultToken.data
-        // )
-
-        // console.error('start _escrowVaultTokenData', _escrowVaultTokenData.amount)
-
-        const _granterTokenData = token.parseTokenAccountData(
-            _granterToken.data
-        )
-        console.error('start _granterTokenData', _granterTokenData)
-
-         // ------------------before end -------------------//
-
-        console.error('--- sign granter ---', granter)
-        console.error('--- sign granter publicKey ---', granter.publicKey.toBase58())
-        console.error('--- sign vesting ---', vesting)
-        console.error('--- sign escrowVault ---', escrowVault)
-        console.error('--- payer wallet payer---', program.value.provider.wallet.payer)
-        console.error('--- payer recipientToken---', recipientToken)
-        console.error('--- start---', start)
-        console.error('--- end---', end)
-        console.error('--- cliff---', cliff)
-        console.error('--- now---', Date.now())
         const tx = await program.value.rpc.createVesting(
-            new BN(amount),
+            new BN(total),
             nonce,
             new BN(vestId),
-            vestName,
-            investor_wallet_address,
-            new BN(start),
-            new BN(end),
+            nacl.util.decodeUTF8(investName),
+            nacl.util.decodeUTF8(investAddress),
+            new BN(startAt),
+            new BN(endAt),
             new BN(period),
-            new BN(cliff),
-            new BN(cliffPercent),
-            new BN(tgePercent),
+            new BN(cliffAt),
+            new BN(cliffRate),
+            new BN(tgeRate),
             {
                 accounts: {
                     granter: granter.publicKey,
@@ -167,38 +87,17 @@ export const useProgram = () => {
                 signers: [program.value.provider.wallet.payer, vesting]
             }
         )
-
         console.error('tx: ', tx)
 
-
-        // ------------------before start -------------------//
-
-        const _escrowVaultToken1 = await connection.getAccountInfo(
+        const _escrowVaultToken = await connection.getAccountInfo(
             escrowVault
         )
-
-        const _granterToken1 = await connection.getAccountInfo(
-            granterToken
+        const _escrowVaultData = token.parseTokenAccountData(
+            _escrowVaultToken.data
         )
-
-        const _vesting1 = await connection.getAccountInfo(
-            vesting.publicKey
-        )
-
-        const _escrowVaultTokenData1 = token.parseTokenAccountData(
-            _escrowVaultToken1.data
-        )
-
-        const _granterTokenData1 = token.parseTokenAccountData(
-            _granterToken1.data
-        )
-
-        console.error('end _escrowVaultToken', _escrowVaultToken1)
-        console.error('end _vesting', _vesting1)
-        console.error('end _escrowVaultTokenData', _escrowVaultTokenData1.amount)
-        console.error('end _granterTokenData', _granterTokenData1)
-
-         // ------------------before end -------------------//
+        console.error('end _escrowVaultTokenData', _escrowVaultData.amount)
+        const success = _escrowVaultData.amount === total
+        return { tx, success }
     }
 
     return {

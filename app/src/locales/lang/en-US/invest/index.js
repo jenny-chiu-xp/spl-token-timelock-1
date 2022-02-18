@@ -47,6 +47,8 @@ export default {
     'invest.confirm.create': '確認創建',
     'invest.create.success': '創建成功',
     'invest.confirm.hint': '請仔細覈對創建的內容',
+    'invest.confirm.fail': '創建失敗',
+    'invest.creating': '訂單創建中...',
     'day': '天',
     'month': '月',
     'week': '周',
