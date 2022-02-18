@@ -6,7 +6,7 @@ use anchor_spl::{
 
 use spl_token::amount_to_ui_amount;
 
-declare_id!("C163CRT8Gvp5SxUGMfQfShu1uTmhSYRmkMaa8PuMWRm7");
+declare_id!("GNfdo4WstygvtzesiYHAwMTTJwt4jBLCkyEnNVKjVbvw");
 
 #[program]
 pub mod spl_token_timelock {

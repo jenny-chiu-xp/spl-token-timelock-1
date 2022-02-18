@@ -298,17 +298,16 @@ const checkParams = () => {
   return true
 }
 const clickCreate = throttle(() => {
-  console.error('-- period ', period.value)
-  showConfirm.value = true
+  console.error('-- period :',period.value)
   createVesting({
     amount: 100,
     token: 'GYC',
     investorName: 'ToTo',
     investorAddress: 'E7H8aasfjnw4a4Vpro1SnaTHiJCvkXnhiiPK63L8zhvp',
-    start: dayjs().unix() + dayjs.duration(1, 'd').seconds(),
-    end: dayjs().unix() + dayjs.duration(3, 'd').seconds(),
+    start: dayjs().unix() + dayjs.duration(1, 'days').asSeconds(),
+    end: dayjs().unix() + dayjs.duration(3, 'd').asSeconds(),
     period: dayjs.duration(1, 'd').asSeconds(),
-    cliff: dayjs().unix() + dayjs.duration(2, 'd').seconds(),
+    cliff: dayjs().unix() + dayjs.duration(2, 'd').asSeconds(),
     cliffPercent: 10,
     tgePercent: 10
   })

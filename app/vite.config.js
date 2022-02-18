@@ -37,5 +37,15 @@ export default defineConfig({
         additionalData: `@import "@/assets/style/global.scss";`
       }
     }
+  },
+  server: {
+    https: false,
+    proxy: {
+      '/api': {
+        target: `http://127.0.0.1:8140/api`,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   }
 })

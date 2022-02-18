@@ -5,8 +5,7 @@
     <router-view v-slot="{ Component }">
       <transition name="el-fade-in-linear">
         <keep-alive>
-          <div
-            class="flex-grow flex flex-col items-center z-10 box-border container">
+          <div class="flex-grow flex flex-col items-center z-10 box-border container">
             <component :is="Component"></component>
           </div>
         </keep-alive>
@@ -22,9 +21,13 @@ import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import PageFooter from '@/components/PageFooter.vue'
 import { useWallet } from 'solana-wallets-vue'
+import useUser from '@/composable/user'
 
-const { connected } = useWallet()
+const { connected, publicKey } = useWallet()
 const router = useRouter()
+
+useUser(publicKey)
+
 watch(
   connected,
   (v) => {

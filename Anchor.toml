@@ -1,5 +1,5 @@
 [programs.localnet]
-spl_token_timelock = "C163CRT8Gvp5SxUGMfQfShu1uTmhSYRmkMaa8PuMWRm7"
+spl_token_timelock = "GNfdo4WstygvtzesiYHAwMTTJwt4jBLCkyEnNVKjVbvw"
 [programs.devnet]
 spl_token_timelock = "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa"
 [programs.mainnet]
