@@ -102,7 +102,7 @@
   }}</success-dialog>
 </template>
 <script setup>
-import { reactive, ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWallet } from 'solana-wallets-vue'
 import { ElMessage } from 'element-plus'
@@ -128,7 +128,7 @@ const showSuccess = ref(false)
 
 const walletAddress = computed(() => publicKey.value.toBase58())
 
-const detail = reactive({})
+const detail = ref()
 const {
   tokenName,
   total,
@@ -159,7 +159,7 @@ const loadDetail = async () => {
   }
   const list = res.list || []
   if (list.length > 0) {
-    Object.assign(detail, list[0])
+    detail.value = list[0]
   } else {
     ElMessage.error(t('invest.no.order'))
     router.replace({ path: '/home' })
@@ -190,7 +190,7 @@ const withdrawAndRecord = async () => {
     const result = await withdrawToken(detail, enableWithdraw.value)
     await orderWithdrawn({
       ...result,
-      id: detail.id,
+      id: detail.value.id,
       currentWithdraw: enableWithdraw.value,
       walletAddress: walletAddress.value
     })

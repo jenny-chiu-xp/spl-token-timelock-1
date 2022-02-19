@@ -294,21 +294,15 @@ const cliff = computed(() => {
 const periodNum = computed(() => {
   const s = cliff.value || start.value
   const duration = end.value.unix() - s.unix()
-  console.error('-- periodNum -s', s)
-  console.error('-- periodNum -duration', duration)
   const p = Math.ceil(duration / (period.value || 1))
   return Math.max(p, 1)
 })
 
 const periodAmount = computed(() => {
   const total = inputAmount.value || 0
-  console.error('-- periodAmount -total', total)
-  console.error('-- periodAmount -periodNum', periodNum.value)
   if (openAdvanced.value) {
     const cliffAmount = (total * inputCliffPercent.value) / 100
     const tgeAmount = (total * inputTgePercent.value) / 100
-    console.error('-- periodAmount -cliffAmount', cliffAmount)
-    console.error('-- periodAmount -tgeAmount', tgeAmount)
     return (total - cliffAmount - tgeAmount) / (periodNum.value || 1)
   }
   return total / (periodNum.value || 1)

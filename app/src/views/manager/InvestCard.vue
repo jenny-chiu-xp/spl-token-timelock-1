@@ -86,7 +86,7 @@
   </div>
 </template>
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { ArrowLeft, CopyDocument } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
 import { getOrderDetail } from '@/api'
@@ -100,7 +100,7 @@ const route = useRoute()
 const id = ref('')
 id.value = route.params.id
 
-const detail = reactive({})
+const detail = ref()
 const {
   tokenName,
   total,
@@ -116,7 +116,7 @@ const {
 
 const loadDetail = async () => {
   const res = await getOrderDetail(id.value)
-  Object.assign(detail, res)
+  detail.value = res
 }
 
 watch(

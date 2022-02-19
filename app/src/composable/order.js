@@ -5,31 +5,31 @@ import { useI18n } from 'vue-i18n'
 export const useOrder = (order) => {
     const { t } = useI18n()
 
-    const total = computed(() => order.total)
-    const tokenName = computed(() => order.tokenName)
-    const withdrawn = computed(() => order.withdrawnAmount)
+    const total = computed(() => order.value.total)
+    const tokenName = computed(() => order.value.tokenName)
+    const withdrawn = computed(() => order.value.withdrawnAmount)
     const cliffUnlock = computed(() => {
-        const { cliffRate } = order
+        const { cliffRate } = order.value
         return cliffRate > 0 ? total.value * (100 / cliffRate) : 0
     })
     const tgeUnlock = computed(() => {
-        const { tgeRate } = order
+        const { tgeRate } = order.value
         return tgeRate > 0 ? total.value * (100 / tgeRate) : 0
     })
     const unlockRate = computed(() => {
-        const { cliffAt, startAt, endAt, period, cliffRate, tgeRate, total } = order
+        const { cliffAt, startAt, endAt, period, cliffRate, tgeRate, total } = order.value
         const duration = endAt - (cliffAt || startAt)
         const periodNum = Math.ceil(duration / (period || 1))
         const periodTotal = total * (100 - cliffRate - tgeRate) / 100
         return periodTotal / (periodNum || 1)
     })
     const unlockUnit = computed(() => {
-        const { periodNum, periodUnit } = order
+        const { periodNum, periodUnit } = order.value
         const unit = PERIOD_UNITS.find(it => it.value === periodUnit) || { label: t('day') }
         return `${periodNum} ${unit.label}`
     })
     const unfreeze = computed(() => {
-        const { cliffAt, startAt, endAt, period, cliffRate, tgeRate, total } = order
+        const { cliffAt, startAt, endAt, period, cliffRate, tgeRate, total } = order.value
         const now = Date.now()
         if (now >= endAt) {
             return total
@@ -46,7 +46,7 @@ export const useOrder = (order) => {
         return periodTotal / (periodNum || 1)
     })
     const nextUnfreeTime = computed(() => {
-        const { cliffAt, startAt, endAt, period } = order
+        const { cliffAt, startAt, endAt, period } = order.value
         const now = Date.now()
         if (now >= endAt) {
             return endAt

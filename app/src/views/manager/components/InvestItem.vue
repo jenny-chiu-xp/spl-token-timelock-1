@@ -21,7 +21,7 @@
       <div class="flex-col">
         <div class="mb-space-8">{{ $t('invest.total') }}</div>
         <div class="font-bold text-white-f4">
-          {{ item.total }}{{ tokenName }}
+          {{ total }}{{ tokenName }}
         </div>
       </div>
       <div class="line"></div>
@@ -64,7 +64,7 @@ const { item } = toRefs(props)
 const { YMDHM } = useDayjs()
 const { toFixed } = useTools()
 
-const { tokenName, unlockRate, unlockUnit, unfreeze } = useOrder(item)
+const { total,tokenName, unlockRate, unlockUnit, unfreeze, withdrawn } = useOrder(item)
 </script>
 <style lang="scss" scoped>
 .content {
