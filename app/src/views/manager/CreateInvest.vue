@@ -316,18 +316,24 @@ const onSureConfirm = throttle(() => {
   if (cliff.value) {
     params.cliffAt = cliff.value
   }
+  if (!openAdvanced.value) {
+    params.cliffRate = 0
+    params.tgeRate = 0
+    params.cliffAt = null
+  }
   createAndUpdate(params)
 })
 
 const createAndUpdate = async (params) => {
   const loading = elLoading(t('invest.creating'))
   const vesting = Keypair.generate()
+  const unit = periodUnit.value
   try {
     const res = await createOrder({
       ...params,
       vestAddress: vesting.publicKey.toBase58(),
       periodNum: inputPeriod.value || 1,
-      periodUnit: periodUnit.value.value
+      periodUnit: unit
     })
     const { id } = res
     const { tx, success } = await createVesting({

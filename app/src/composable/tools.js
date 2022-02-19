@@ -39,6 +39,8 @@ export const useTools = () => {
         })
     }
 
+    const elError = (text) => ElMessage.error(text)
+
     const elLoading = (text) => ElLoading.service({
         lock: true,
         text,
@@ -48,6 +50,7 @@ export const useTools = () => {
     return {
         t,
         copy,
+        elError,
         elLoading
     }
 }

@@ -20,6 +20,9 @@
           <invest-item :item="item"></invest-item>
         </div>
       </div>
+      <div v-if="list.length === 0 && isFirstLoaded" class="mt-space-32">
+        <el-empty :description="$t('nodata')"></el-empty>
+      </div>
     </div>
   </div>
 </template>
@@ -27,11 +30,24 @@
 import InvestItem from './components/InvestItem.vue'
 import { ref, onMounted } from 'vue'
 import { getOrderList } from '@/api'
+import { useTools } from '@/composable/tools'
+
+const { t, elLoading, elError } = useTools()
+const isFirstLoaded = ref(false)
 
 const list = ref([])
 const loadList = async () => {
-  const res = await getOrderList({ pageSize: 100 })
-  list.value = res.list || []
+  const loading = elLoading(t('loading'))
+  try {
+    const res = await getOrderList({ pageSize: 100 })
+    list.value = res.list || []
+  } catch (err) {
+    console.error('load order list err', err)
+    elError(err.message || 'load error')
+  } finally {
+    loading.close()
+    isFirstLoaded.value = true
+  }
 }
 
 onMounted(loadList)

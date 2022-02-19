@@ -25,7 +25,7 @@ export default {
     'invest.input.cliff.time': 'Choose cliff time',
     'invest.start.end.hint': 'Start time cannot be greater than end time',
     'invest.cliff.hint': 'Cliff time needs to be between start time and end time',
-    'invest.cliff.percent': 'Cliff ratio (unlocked immediately after the freezing period)',
+    'invest.cliff.percent': 'Cliff ratio (unlocked after cliff time)',
     'invest.tge.percent': 'TGE unlock (build contract unlock)',
     'invest.desc': 'Description',
     'invest.start': 'Start',
