@@ -37,31 +37,49 @@
         </div>
         <div class="flex flex-row mt-space-20">
           <div class="label">{{ $t('invest.total.amount') }}:</div>
-          <div>{{ detail.total }}{{ detail.tokenName }}</div>
+          <div>{{ toFixed(total) }}{{ tokenName }}</div>
         </div>
         <div class="flex flex-row mt-space-20">
           <div class="label">{{ $t('invest.cliff.unlock') }}:</div>
-          <div>123123</div>
+          <div>
+            {{
+              $t('invest.rate.unlock', {
+                num: `${toFixed(cliffUnlock)}${tokenName}`,
+                rate: detail.cliffRate,
+              })
+            }}
+          </div>
         </div>
         <div class="flex flex-row mt-space-20">
-          <div class="label">{{ $t('invest.tge.unlock') }}:</div>
-          <div class="text-green">{{ detail.total }}{{ detail.tokenName }}</div>
+          <div class="label">TGE:</div>
+          <div class="text-green">
+            {{
+              $t('invest.rate.unlock', {
+                num: `${toFixed(tgeUnlock)}${tokenName}`,
+                rate: detail.cliffRate,
+              })
+            }}
+          </div>
         </div>
         <div class="flex flex-row mt-space-20">
           <div class="label">{{ $t('invest.unlock.rate') }}:</div>
-          <div>{{ detail.tge }}{{ detail.tokenName }}</div>
+          <div>{{ toFixed(unlockRate) }}{{ tokenName }} / {{ unlockUnit }}</div>
+        </div>
+        <div class="flex flex-row mt-space-20">
+          <div class="label">{{ $t('invest.free.amount') }}:</div>
+          <div>{{ toFixed(unfreeze) }}{{ tokenName }}</div>
         </div>
         <div class="flex flex-row mt-space-20">
           <div class="label">{{ $t('invest.unfreeze.next') }}:</div>
-          <div>{{ detail.tge }}{{ detail.tokenName }}</div>
+          <div>{{ YMDHM(nextUnfreeTime) }}</div>
         </div>
         <div class="flex flex-row mt-space-20">
           <div class="label">{{ $t('invest.withdraw.amount') }}:</div>
-          <div>{{ detail.tge }}{{ detail.tokenName }}</div>
+          <div>{{ toFixed(withdrawn) }}{{ tokenName }}</div>
         </div>
         <div class="flex flex-row mt-space-20">
           <div class="label">{{ $t('invest.withdraw.enable') }}:</div>
-          <div>{{ detail.withdrawnAmount }}{{ detail.tokenName }}</div>
+          <div>{{ toFixed(enableWithdraw) }}{{ tokenName }}</div>
         </div>
       </div>
     </div>
@@ -74,6 +92,7 @@ import { useRoute } from 'vue-router'
 import { getOrderDetail } from '@/api'
 import { useDayjs } from '@/composable/tools'
 import { useTools } from '@/composable/tools'
+import { useOrder } from '@/composable/order'
 
 const { copy } = useTools()
 const route = useRoute()
@@ -82,6 +101,20 @@ const id = ref('')
 id.value = route.params.id
 
 const detail = reactive({})
+const {
+  tokenName,
+  toFixed,
+  total,
+  withdrawn,
+  cliffUnlock,
+  tgeUnlock,
+  unlockRate,
+  unlockUnit,
+  unfreeze,
+  nextUnfreeTime,
+  enableWithdraw
+} = useOrder(detail)
+
 const loadDetail = async () => {
   const res = await getOrderDetail(id.value)
   Object.assign(detail, res)

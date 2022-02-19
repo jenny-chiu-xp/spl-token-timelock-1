@@ -6,7 +6,7 @@
         <div class="font-bold text-size-32 text-white-f4">
           {{ item.investName }}
         </div>
-        <div>{{ item.id }}</div>
+        <div>{{ item.investAddress }}</div>
       </div>
       <div class="flex-col">
         <div>{{ $t('invest.start') }}：{{ YMDHM(item.start) }}</div>
@@ -21,23 +21,23 @@
       <div class="flex-col">
         <div class="mb-space-8">{{ $t('invest.total') }}</div>
         <div class="font-bold text-white-f4">
-          {{ item.total }}{{ item.tokenName }}
+          {{ item.total }}{{ tokenName }}
         </div>
       </div>
       <div class="line"></div>
       <div class="flex-col">
         <div class="mb-space-8">{{ $t('invest.free.rate') }}</div>
-        <div class="font-bold text-white-f4"> {{ item.total }}{{ item.tokenName }}</div>
+        <div class="font-bold text-white-f4"> {{ toFixed(unlockRate) }}{{ tokenName }} / {{ unlockUnit }}</div>
       </div>
       <div class="line"></div>
       <div class="flex-col">
         <div class="mb-space-8">{{ $t('invest.free.amount') }}</div>
-        <div class="font-bold text-white-f4">{{ item.total }}{{ item.tokenName }}</div>
+        <div class="font-bold text-white-f4">{{ toFixed(unfreeze) }}{{ tokenName }}</div>
       </div>
       <div class="line"></div>
       <div class="flex-col">
         <div class="mb-space-8">{{ $t('invest.withdraw.amount') }}</div>
-        <div class="font-bold text-white-f4">{{ item.withdrawnAmount }}{{ item.tokenName }}</div>
+        <div class="font-bold text-white-f4">{{ toFixed(withdrawn) }}{{ tokenName }}</div>
       </div>
     </div>
   </div>
@@ -45,6 +45,7 @@
 <script setup>
 import { toRefs } from 'vue'
 import { useDayjs } from '@/composable/tools'
+import { useOrder } from '@/composable/order'
 
 const props = defineProps({
   item: {
@@ -55,6 +56,14 @@ const props = defineProps({
 const { item } = toRefs(props)
 
 const { YMDHM } = useDayjs()
+
+const {
+  tokenName,
+  toFixed,
+  unlockRate,
+  unlockUnit,
+  unfreeze
+} = useOrder(item)
 </script>
 <style lang="scss" scoped>
 .content {

@@ -40,31 +40,49 @@
       </div>
       <div class="flex flex-row mt-space-20">
         <div class="label">{{ $t('invest.total.amount') }}:</div>
-        <div>{{ detail.total }}{{ detail.tokenName }}</div>
+        <div>{{ toFixed(total) }}{{ tokenName }}</div>
       </div>
       <div class="flex flex-row mt-space-20">
         <div class="label">{{ $t('invest.cliff.unlock') }}:</div>
-        <div>{{ detail.total }}{{ detail.tokenName }}</div>
+        <div>
+          {{
+            $t('invest.rate.unlock', {
+              num: `${toFixed(cliffUnlock)}${tokenName}`,
+              rate: detail.cliffRate
+            })
+          }}
+        </div>
       </div>
       <div class="flex flex-row mt-space-20">
-        <div class="label">{{ $t('invest.tge.unlock') }}:</div>
-        <div>{{ detail.tge }}{{ detail.tokenName }}</div>
+        <div class="label">TGE:</div>
+        <div>
+          {{
+            $t('invest.rate.unlock', {
+              num: `${toFixed(tgeUnlock)}${tokenName}`,
+              rate: detail.cliffRate
+            })
+          }}
+        </div>
       </div>
       <div class="flex flex-row mt-space-20">
         <div class="label">{{ $t('invest.unlock.rate') }}:</div>
-        <div>{{ detail.tge }}{{ detail.tokenName }}</div>
+        <div>{{ toFixed(unlockRate) }}{{ tokenName }} / {{ unlockUnit }}</div>
+      </div>
+      <div class="flex flex-row mt-space-20">
+        <div class="label">{{ $t('invest.free.amount') }}:</div>
+        <div>{{ toFixed(unfreeze) }}{{ tokenName }}</div>
       </div>
       <div class="flex flex-row mt-space-20">
         <div class="label">{{ $t('invest.unfreeze.next') }}:</div>
-        <div>{{ detail.tge }}{{ detail.tokenName }}</div>
+        <div>{{ YMDHM(nextUnfreeTime) }}</div>
       </div>
-      <div class="flex-row mt-space-20">
+      <div class="flex flex-row mt-space-20">
         <div class="label">{{ $t('invest.withdraw.amount') }}:</div>
-        <div>{{ detail.withdrawnAmount }}{{ detail.tokenName }}</div>
+        <div>{{ toFixed(withdrawn) }}{{ tokenName }}</div>
       </div>
-      <div class="flex-row mt-space-20">
+      <div class="flex flex-row mt-space-20">
         <div class="label">{{ $t('invest.withdraw.enable') }}:</div>
-        <div>{{ detail.withdrawnAmount }}{{ detail.tokenName }}</div>
+        <div>{{ toFixed(enableWithdraw) }}{{ tokenName }}</div>
       </div>
 
       <div class="mt-space-40 px-space-64 btn-common" @click="clickWithdrawn">
@@ -79,9 +97,7 @@
     <template #sure>{{ $t('invest.withdraw') }}</template>
   </confirm-dialog>
 
-  <success-dialog v-model:show="showSuccess">{{
-    $t('invest.withdraw.success')
-  }}</success-dialog>
+  <success-dialog v-model:show="showSuccess">{{ $t('invest.withdraw.success') }}</success-dialog>
 </template>
 <script setup>
 import { reactive, ref, onMounted, computed } from 'vue'
@@ -96,13 +112,14 @@ import { useDayjs } from '@/composable/tools'
 import { useTools } from '@/composable/tools'
 import { throttle } from '@/utils'
 import { useProgram } from '@/composable/anchorProgram'
+import { useOrder } from '@/composable/order'
 
 const { copy, t, elLoading } = useTools()
 const { withdrawToken } = useProgram()
 
 const router = useRouter()
 const { publicKey } = useWallet()
-const { YMD, HM } = useDayjs()
+const { YMD, YMDHM, HM } = useDayjs()
 
 const showConfirm = ref(false)
 const showSuccess = ref(false)
@@ -110,6 +127,20 @@ const showSuccess = ref(false)
 const walletAddress = computed(() => publicKey.value.toBase58())
 
 const detail = reactive({})
+const {
+  tokenName,
+  toFixed,
+  total,
+  withdrawn,
+  cliffUnlock,
+  tgeUnlock,
+  unlockRate,
+  unlockUnit,
+  unfreeze,
+  nextUnfreeTime,
+  enableWithdraw
+} = useOrder(detail)
+
 const loadDetail = async () => {
   const loading = elLoading(t('loading'))
   let res = {}
@@ -134,10 +165,8 @@ const loadDetail = async () => {
   }
 }
 
-const enableAmount = computed(() => 2)
-
 const checkParams = () => {
-  if (enableAmount.value <= 0) {
+  if (enableWithdraw.value <= 0) {
     ElMessage.error(t('invest.no.withdraw'))
     return false
   }
@@ -145,7 +174,6 @@ const checkParams = () => {
 }
 
 const clickWithdrawn = () => {
-  console.error('--- 001 ---', detail)
   if (checkParams()) {
     showConfirm.value = true
   }
@@ -158,11 +186,11 @@ const onSureConfirm = throttle(() => {
 const withdrawAndRecord = async () => {
   const loading = elLoading(t('invest.withdrawing'))
   try {
-    const result = await withdrawToken(detail, enableAmount.value)
+    const result = await withdrawToken(detail, enableWithdraw.value)
     await orderWithdrawn({
       ...result,
       id: detail.id,
-      currentWithdraw: enableAmount.value,
+      currentWithdraw: enableWithdraw.value,
       walletAddress: walletAddress.value
     })
     showSuccess.value = true
