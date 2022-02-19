@@ -79,7 +79,7 @@
     <template #sure>{{ $t('invest.withdraw') }}</template>
   </confirm-dialog>
 
-  <success-dialog v-model:show="showSuccess" @dismiss="$router.back()">{{
+  <success-dialog v-model:show="showSuccess">{{
     $t('invest.withdraw.success')
   }}</success-dialog>
 </template>
@@ -107,12 +107,17 @@ const { YMD, HM } = useDayjs()
 const showConfirm = ref(false)
 const showSuccess = ref(false)
 
+const walletAddress = computed(() => publicKey.value.toBase58())
+
 const detail = reactive({})
 const loadDetail = async () => {
   const loading = elLoading(t('loading'))
   let res = {}
   try {
-    res = await getOrderList({ pageSize: 1, investAddress: publicKey.value.toBase58() })
+    res = await getOrderList({
+      pageSize: 1,
+      investAddress: walletAddress.value
+    })
   } catch (err) {
     console.error('get order list error: ' + err)
     const message = err.message || t('invest.load.fail')
@@ -129,7 +134,7 @@ const loadDetail = async () => {
   }
 }
 
-const enableAmount = computed(() => 1)
+const enableAmount = computed(() => 2)
 
 const checkParams = () => {
   if (enableAmount.value <= 0) {
@@ -140,7 +145,7 @@ const checkParams = () => {
 }
 
 const clickWithdrawn = () => {
-  console.error('--- 001 ---',detail)
+  console.error('--- 001 ---', detail)
   if (checkParams()) {
     showConfirm.value = true
   }
@@ -153,11 +158,15 @@ const onSureConfirm = throttle(() => {
 const withdrawAndRecord = async () => {
   const loading = elLoading(t('invest.withdrawing'))
   try {
-    await withdrawToken(detail, enableAmount.value)
+    const result = await withdrawToken(detail, enableAmount.value)
     await orderWithdrawn({
+      ...result,
       id: detail.id,
-      withdrawnAmount: enableAmount.value
+      currentWithdraw: enableAmount.value,
+      walletAddress: walletAddress.value
     })
+    showSuccess.value = true
+    await loadDetail()
   } catch (err) {
     console.error('order success', err)
     const message = err.message || t('invest.confirm.fail')

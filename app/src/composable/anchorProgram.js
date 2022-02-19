@@ -3,7 +3,6 @@ import { BN } from '@project-serum/anchor'
 import { token } from '@project-serum/common'
 import {
     PublicKey, SystemProgram,
-    Keypair,
     SYSVAR_RENT_PUBKEY,
     SYSVAR_CLOCK_PUBKEY
 } from '@solana/web3.js'
@@ -24,7 +23,8 @@ export const useProgram = () => {
         console.log('params:', params)
         const granter = wallet.value
 
-        const { total, vestId, investName, investAddress, startAt, endAt, cliffAt, period, cliffRate, tgeRate, tokenAddress } = params
+        const { total, vestId, investName, investAddress, startAt, endAt, cliffAt,
+            period, cliffRate, tgeRate, tokenAddress, vesting } = params
 
         const mintPublicKey = new PublicKey(tokenAddress)
         const mintToken = new Token(
@@ -49,7 +49,6 @@ export const useProgram = () => {
             recipient
         )
 
-        const vesting = Keypair.generate()
         const [escrowVault, nonce] = await PublicKey.findProgramAddress(
             [vesting.publicKey.toBuffer()],
             program.value.programId
@@ -99,7 +98,7 @@ export const useProgram = () => {
     }
 
     const withdrawToken = async (order, amount) => {
-        const { tokenAddress, investAddress } = order
+        const { tokenAddress, investAddress, vestAddress } = order
 
         const mintPublicKey = new PublicKey(tokenAddress)
         const mintToken = new Token(
@@ -109,9 +108,6 @@ export const useProgram = () => {
             wallet.value.payer
         )
 
-        console.error('--- tokenAddress', tokenAddress)
-        console.error('--- mintToken', mintToken)
-
         const recipient = new PublicKey(investAddress)
         const recipientToken = await Token.getAssociatedTokenAddress(
             mintToken.associatedProgramId,
@@ -120,60 +116,28 @@ export const useProgram = () => {
             recipient
         )
 
-        console.error('--- recipient investAddress', investAddress)
-        console.error('--- recipient recipientToken', recipientToken)
-
-        const vesting = Keypair.generate()
+        const vesting = new PublicKey(vestAddress)
         const [escrowVault, nonce] = await PublicKey.findProgramAddress(
-            [vesting.publicKey.toBuffer()],
+            [vesting.toBuffer()],
             program.value.programId
         )
+        console.log('findProgramAddress nonce', nonce)
+        const oldEscrowAccountInfo = await connection.getAccountInfo(escrowVault)
+        const oldEscrowAmount = token.parseTokenAccountData(oldEscrowAccountInfo.data).amount
 
-        console.error('findProgramAddress nonce', nonce)
-        const oldEscrowVaultAccountInfo = await connection.getAccountInfo(
-            escrowVault
-        )
+        console.log('oldEscrowVaultAmount', oldEscrowAmount)
 
-        let oldEscrowVaultAmount
-        if (oldEscrowVaultAccountInfo) {
-            oldEscrowVaultAmount = token.parseTokenAccountData(
-                oldEscrowVaultAccountInfo.data
-            ).amount
-        }
+        const oldRecipientTokenAccountInfo = await connection.getAccountInfo(recipientToken)
+        const oldRecipientAmount = token.parseTokenAccountData(oldRecipientTokenAccountInfo.data).amount
 
-        console.error('oldEscrowVaultAmount', oldEscrowVaultAmount)
-
-        const oldRecipientTokenAccountInfo = await connection.getAccountInfo(
-            recipientToken
-        )
-
-        let oldRecipientTokenAmount
-        if (oldRecipientTokenAccountInfo) {
-            oldRecipientTokenAmount = token.parseTokenAccountData(
-                oldRecipientTokenAccountInfo.data
-            ).amount
-        }
-
-        console.error('oldRecipientTokenAmount', oldRecipientTokenAmount)
-
-        const withdrawAmount = new BN(amount)
-
-        console.error(
-            'vesting',
-            vesting.publicKey.toBase58(),
-            'escrowVault',
-            escrowVault.toBase58()
-        )
-
-        console.log('seed', vesting.publicKey.toBuffer())
-        console.log('vesting', vesting.publicKey.toBase58())
+        console.log('oldRecipientTokenAmount', oldRecipientAmount)
 
         const tx = await program.value.rpc.withdraw(
-            withdrawAmount,
+            new BN(amount),
             {
                 accounts: {
                     recipientToken: recipientToken,
-                    vesting: vesting.publicKey,
+                    vesting: vesting,
                     escrowVault: escrowVault,
                     mint: mintPublicKey,
                     tokenProgram: TOKEN_PROGRAM_ID,
@@ -183,33 +147,25 @@ export const useProgram = () => {
             }
         )
 
-        console.error('tx: ', tx)
+        console.log('tx: ', tx)
+        const newEscrowAccountInfo = await connection.getAccountInfo(escrowVault)
+        const newEscrowAmount = token.parseTokenAccountData(newEscrowAccountInfo.data).amount
+        console.log('newEscrowAmount', newEscrowAmount)
 
-        const _vesting = await connection.getAccountInfo(
-            vesting.publicKey
-        )
+        const newRecipientTokenAccountInfo = await connection.getAccountInfo(recipientToken)
+        const newRecipientAmount = token.parseTokenAccountData(newRecipientTokenAccountInfo.data).amount
 
-        console.error('_vesting', _vesting)
-
-        const newRecipientTokenAccountInfo = await connection.getAccountInfo(
-            recipientToken
-        )
-
-        const newRecipientTokenAmount = token.parseTokenAccountData(
-            newRecipientTokenAccountInfo.data
-        ).amount
-
-        console.error('newRecipientTokenAmount', newRecipientTokenAmount)
-
-        const newEscrowVaultAmount = null
-        const newEscrowVaultAccountInfo = await connection.getAccountInfo(
-            escrowVault
-        )
-
-        console.error('newEscrowVaultAmount', newEscrowVaultAmount)
-        console.error('newEscrowVaultAccountInfo', newEscrowVaultAccountInfo)
-        console.error('new - old', newRecipientTokenAmount, oldRecipientTokenAmount)
-
+        console.log('new ~ old', newRecipientAmount, oldRecipientAmount)
+        const success = newRecipientAmount - oldRecipientAmount === amount
+        return {
+            tx,
+            oldEscrowAmount,
+            newEscrowAmount,
+            oldRecipientAmount,
+            newRecipientAmount,
+            withdrawnAmount: newRecipientAmount,
+            status: success ? 1 : 0
+        }
     }
 
     return {

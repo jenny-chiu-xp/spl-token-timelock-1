@@ -197,6 +197,7 @@ import { useProgram } from '@/composable/anchorProgram'
 import { createOrder, orderSuccess } from '@/api'
 import { useWallet } from 'solana-wallets-vue'
 import { useTools } from '@/composable/tools'
+import { Keypair } from '@solana/web3.js'
 
 const { publicKey } = useWallet()
 
@@ -223,7 +224,7 @@ const disableEnd = (date) => {
     ? date.getTime() < startDate.value.getTime()
     : date.getTime() < Date.now()
 }
-const inputPeriod = ref(0)
+const inputPeriod = ref(1)
 const periodUnit = ref(PERIOD_UNITS[0].value)
 const period = computed(() => {
   return dayjs.duration(inputPeriod.value, periodUnit.value).asSeconds()
@@ -320,10 +321,19 @@ const onSureConfirm = throttle(() => {
 
 const createAndUpdate = async (params) => {
   const loading = elLoading(t('invest.creating'))
+  const vesting = Keypair.generate()
   try {
-    const res = await createOrder(params)
+    const res = await createOrder({
+      ...params,
+      vestAddress: vesting.publicKey.toBase58(),
+      periodNum: inputPeriod.value || 1,
+      periodUnit: periodUnit.value.value
+    })
     const { id } = res
-    const { tx, success } = await createVesting(params)
+    const { tx, success } = await createVesting({
+      ...params,
+      vesting
+    })
     const status = success ? 1 : 0
     await orderSuccess({ id, tx, status })
     showSuccess.value = true
