@@ -48,7 +48,7 @@
           {{
             $t('invest.rate.unlock', {
               num: `${toFixed(cliffUnlock)}${tokenName}`,
-              rate: detail.cliffRate
+              rate: detail.cliffRate,
             })
           }}
         </div>
@@ -59,7 +59,7 @@
           {{
             $t('invest.rate.unlock', {
               num: `${toFixed(tgeUnlock)}${tokenName}`,
-              rate: detail.cliffRate
+              rate: detail.cliffRate,
             })
           }}
         </div>
@@ -97,7 +97,9 @@
     <template #sure>{{ $t('invest.withdraw') }}</template>
   </confirm-dialog>
 
-  <success-dialog v-model:show="showSuccess">{{ $t('invest.withdraw.success') }}</success-dialog>
+  <success-dialog v-model:show="showSuccess">{{
+    $t('invest.withdraw.success')
+  }}</success-dialog>
 </template>
 <script setup>
 import { reactive, ref, onMounted, computed } from 'vue'
@@ -114,7 +116,7 @@ import { throttle } from '@/utils'
 import { useProgram } from '@/composable/anchorProgram'
 import { useOrder } from '@/composable/order'
 
-const { copy, t, elLoading } = useTools()
+const { copy, t, elLoading, toFixed } = useTools()
 const { withdrawToken } = useProgram()
 
 const router = useRouter()
@@ -129,7 +131,6 @@ const walletAddress = computed(() => publicKey.value.toBase58())
 const detail = reactive({})
 const {
   tokenName,
-  toFixed,
   total,
   withdrawn,
   cliffUnlock,

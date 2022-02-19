@@ -27,24 +27,30 @@
       <div class="line"></div>
       <div class="flex-col">
         <div class="mb-space-8">{{ $t('invest.free.rate') }}</div>
-        <div class="font-bold text-white-f4"> {{ toFixed(unlockRate) }}{{ tokenName }} / {{ unlockUnit }}</div>
+        <div class="font-bold text-white-f4">
+          {{ toFixed(unlockRate) }}{{ tokenName }} / {{ unlockUnit }}
+        </div>
       </div>
       <div class="line"></div>
       <div class="flex-col">
         <div class="mb-space-8">{{ $t('invest.free.amount') }}</div>
-        <div class="font-bold text-white-f4">{{ toFixed(unfreeze) }}{{ tokenName }}</div>
+        <div class="font-bold text-white-f4">
+          {{ toFixed(unfreeze) }}{{ tokenName }}
+        </div>
       </div>
       <div class="line"></div>
       <div class="flex-col">
         <div class="mb-space-8">{{ $t('invest.withdraw.amount') }}</div>
-        <div class="font-bold text-white-f4">{{ toFixed(withdrawn) }}{{ tokenName }}</div>
+        <div class="font-bold text-white-f4">
+          {{ toFixed(withdrawn) }}{{ tokenName }}
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script setup>
 import { toRefs } from 'vue'
-import { useDayjs } from '@/composable/tools'
+import { useDayjs, useTools } from '@/composable/tools'
 import { useOrder } from '@/composable/order'
 
 const props = defineProps({
@@ -56,14 +62,9 @@ const props = defineProps({
 const { item } = toRefs(props)
 
 const { YMDHM } = useDayjs()
+const { toFixed } = useTools()
 
-const {
-  tokenName,
-  toFixed,
-  unlockRate,
-  unlockUnit,
-  unfreeze
-} = useOrder(item)
+const { tokenName, unlockRate, unlockUnit, unfreeze } = useOrder(item)
 </script>
 <style lang="scss" scoped>
 .content {

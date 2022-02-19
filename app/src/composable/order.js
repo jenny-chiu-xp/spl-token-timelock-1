@@ -5,10 +5,6 @@ import { useI18n } from 'vue-i18n'
 export const useOrder = (order) => {
     const { t } = useI18n()
 
-    const toFixed = (num) => {
-        return parseFloat(num).toFixed(4)
-    }
-
     const total = computed(() => order.total)
     const tokenName = computed(() => order.tokenName)
     const withdrawn = computed(() => order.withdrawnAmount)
@@ -70,7 +66,6 @@ export const useOrder = (order) => {
     })
 
     return {
-        toFixed,
         total,
         tokenName,
         withdrawn,

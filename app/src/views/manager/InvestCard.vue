@@ -94,7 +94,7 @@ import { useDayjs } from '@/composable/tools'
 import { useTools } from '@/composable/tools'
 import { useOrder } from '@/composable/order'
 
-const { copy } = useTools()
+const { copy, toFixed } = useTools()
 const route = useRoute()
 
 const id = ref('')
@@ -103,7 +103,6 @@ id.value = route.params.id
 const detail = reactive({})
 const {
   tokenName,
-  toFixed,
   total,
   withdrawn,
   cliffUnlock,

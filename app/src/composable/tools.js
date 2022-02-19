@@ -31,6 +31,10 @@ export const useTools = () => {
     const { t } = useI18n()
     const { toClipboard } = useClipboard()
 
+    const toFixed = (num) => {
+        return String(num).replace(/^(.*\..{4}).*$/, '$1')
+    }
+
     const copy = async (text) => {
         await toClipboard(text)
         ElMessage({
@@ -50,6 +54,7 @@ export const useTools = () => {
     return {
         t,
         copy,
+        toFixed,
         elError,
         elLoading
     }

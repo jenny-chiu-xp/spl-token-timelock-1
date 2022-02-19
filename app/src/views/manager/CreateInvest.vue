@@ -20,7 +20,7 @@
               size="large"
               style="width: 100%"
               :controls="false"
-              :min="1"></el-input-number>
+              :min="0"></el-input-number>
           </div>
           <div class="flex-grow flex flex-col">
             <text>{{ $t('invest.token') }}</text>
@@ -163,8 +163,29 @@
             <div style="flex: 1 1" class="mx-space-32"></div>
             <div style="flex: 1 1"></div>
           </div>
+        </div>
 
-          <text class="mt-space-32">{{ $t('invest.desc') }}</text>
+        <div class="mt-space-32">{{ $t('invest.desc') }}</div>
+        <div v-if="inputAmount && firstUnfreeze" class="mt-space-16">
+          {{ firstDesc }}
+        </div>
+        <div
+          v-if="inputAmount && inputPeriod && periodAmount"
+          class="mt-space-8">
+          {{
+            $t('invest.desc.second', {
+              period: `${inputPeriod}${periodLabel}`,
+              num: `${toFixed(periodAmount)}GYC`,
+              end: YMDHM(end),
+            })
+          }}
+        </div>
+        <div v-if="tgeAmount" class="mt-space-8">
+          {{
+            $t('invest.desc.third', {
+              num: `${toFixed(tgeAmount)}GYC`,
+            })
+          }}
         </div>
         <div class="btn-common px-space-64 mt-space-32" @click="clickCreate">
           + {{ $t('invest.create') }}
@@ -196,14 +217,15 @@ import { PERIOD_UNITS } from '@/store/dict'
 import { useProgram } from '@/composable/anchorProgram'
 import { createOrder, orderSuccess } from '@/api'
 import { useWallet } from 'solana-wallets-vue'
-import { useTools } from '@/composable/tools'
+import { useTools, useDayjs } from '@/composable/tools'
 import { Keypair } from '@solana/web3.js'
 
 const { publicKey } = useWallet()
 
 dayjs.extend(duration)
 
-const { t, elLoading } = useTools()
+const { t, elLoading, toFixed } = useTools()
+const { YMDHM } = useDayjs()
 const { createVesting } = useProgram()
 
 const showConfirm = ref(false)
@@ -224,10 +246,16 @@ const disableEnd = (date) => {
     ? date.getTime() < startDate.value.getTime()
     : date.getTime() < Date.now()
 }
-const inputPeriod = ref(1)
+const inputPeriod = ref(0)
 const periodUnit = ref(PERIOD_UNITS[0].value)
 const period = computed(() => {
   return dayjs.duration(inputPeriod.value, periodUnit.value).asSeconds()
+})
+const periodLabel = computed(() => {
+  const p = PERIOD_UNITS.find((it) => it.value === periodUnit.value) || {
+    label: 'day'
+  }
+  return p.label
 })
 
 const openAdvanced = ref(false)
@@ -255,7 +283,7 @@ const end = computed(() => {
 })
 
 const cliff = computed(() => {
-  if (cliffDate.value && cliffTime.value) {
+  if (cliffDate.value) {
     const date = dayjs(cliffDate.value)
     const time = dayjs(cliffTime.value)
     return date.hour(time.hour()).minute(time.minute()).second(time.second())
@@ -263,8 +291,59 @@ const cliff = computed(() => {
   return null
 })
 
+const periodNum = computed(() => {
+  const s = cliff.value || start.value
+  const duration = end.value.unix() - s.unix()
+  console.error('-- periodNum -s', s)
+  console.error('-- periodNum -duration', duration)
+  const p = Math.ceil(duration / (period.value || 1))
+  return Math.max(p, 1)
+})
+
+const periodAmount = computed(() => {
+  const total = inputAmount.value || 0
+  console.error('-- periodAmount -total', total)
+  console.error('-- periodAmount -periodNum', periodNum.value)
+  if (openAdvanced.value) {
+    const cliffAmount = (total * inputCliffPercent.value) / 100
+    const tgeAmount = (total * inputTgePercent.value) / 100
+    console.error('-- periodAmount -cliffAmount', cliffAmount)
+    console.error('-- periodAmount -tgeAmount', tgeAmount)
+    return (total - cliffAmount - tgeAmount) / (periodNum.value || 1)
+  }
+  return total / (periodNum.value || 1)
+})
+
+const tgeAmount = computed(() => {
+  if (openAdvanced.value) {
+    const total = inputAmount.value || 0
+    return (total * inputTgePercent.value) / 100
+  }
+  return 0
+})
+
+const firstUnfreeze = computed(() => {
+  const total = inputAmount.value || 0
+  if (openAdvanced.value) {
+    const cliffAmount = (total * inputCliffPercent.value) / 100
+    const tgeAmount = (total * inputTgePercent.value) / 100
+    return cliffAmount > 0
+      ? cliffAmount
+      : (total - cliffAmount - tgeAmount) / (periodNum.value || 1)
+  }
+  return total / (periodNum.value || 1)
+})
+
+const firstDesc = computed(() => {
+  const s = openAdvanced.value && cliff.value ? cliff.value : start.value
+  return t('invest.desc.first', {
+    time: YMDHM(s),
+    num: `${toFixed(firstUnfreeze.value)}GYC`
+  })
+})
+
 const checkParams = () => {
-  if (inputAmount.value === 0) {
+  if (inputAmount.value <= 0) {
     ElMessage.error(`${t('invest.num.hint')}`)
     return false
   }
@@ -327,13 +406,12 @@ const onSureConfirm = throttle(() => {
 const createAndUpdate = async (params) => {
   const loading = elLoading(t('invest.creating'))
   const vesting = Keypair.generate()
-  const unit = periodUnit.value
   try {
     const res = await createOrder({
       ...params,
       vestAddress: vesting.publicKey.toBase58(),
       periodNum: inputPeriod.value || 1,
-      periodUnit: unit
+      periodUnit: periodUnit.value
     })
     const { id } = res
     const { tx, success } = await createVesting({
