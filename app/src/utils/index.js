@@ -74,10 +74,27 @@ function throttle (fn, gapTime = 300) {
     }
 }
 
+/**
+ * formatAddress
+ * @param address address string
+ * @param subLen size
+ */
+function formatAddress (address, subLen) {
+    if (!address || address.length === 0) return ''
+    const length = address.length
+    if (subLen >= length) return address
+    const half = parseInt(`${length / 2}`)
+    if (subLen >= half) return address
+    const start = address.substr(0, subLen)
+    const end = address.substr(length - subLen, length)
+    return `${start}...${end}`
+}
+
 
 
 export {
     uuid,
     debounce,
-    throttle
+    throttle,
+    formatAddress
 }

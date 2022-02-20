@@ -1,7 +1,7 @@
 <template>
   <div class="w-full flex flex-col justify-center items-center relative home">
     <img class="absolute img-bg" src="/images/bg_page.png" />
-    <page-header class="z-10"></page-header>
+    <page-header></page-header>
     <router-view v-slot="{ Component }">
       <transition name="el-fade-in-linear">
         <keep-alive>
@@ -30,7 +30,19 @@ const { publicKey } = useWallet()
 const router = useRouter()
 const store = useStore()
 
-useUser(publicKey)
+const { login,logout } = useUser()
+
+watch(
+  publicKey,
+  async (v) => {
+    if (v) {
+      await login(v)
+    } else {
+      logout()
+    }
+  },
+  { immediate: true }
+)
 
 const role = computed(() => store.getters.role)
 
@@ -38,7 +50,7 @@ watch(
   role,
   (v) => {
     let path = '/home'
-    switch (role.value) {
+    switch (v) {
       case ROLE_ADMIN:
         path = '/invest/list'
         break

@@ -66,5 +66,8 @@ export default {
     'invest.withdraw.hint': '確認全部提取到錢包？',
     'invest.desc.first': '首次於{time}釋放{num}',
     'invest.desc.second': '然後每{period}釋放{num}，直到{end}',
-    'invest.desc.third': 'TGE：訂單創建後將立即釋放{num}'
+    'invest.desc.third': 'TGE：訂單創建後將立即釋放{num}',
+    'invest.disconnect.title': '確認斷開',
+    'invest.disconnect.hint': '確認斷開當前錢包',
+    'invest.disconnect': '斷開'
 }
