@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { useSolanaWallet } from '@/composable/solana'
 import { BN } from '@project-serum/anchor'
 import { token } from '@project-serum/common'
@@ -168,8 +169,17 @@ export const useProgram = () => {
         }
     }
 
+    const balance = ref(0)
+    const getBalance = async () => {
+        const amount = await connection.getBalance(wallet.value.publicKey)
+        balance.value = amount
+        return amount
+    }
+
     return {
         createVesting,
-        withdrawToken
+        withdrawToken,
+        getBalance,
+        balance
     }
 }

@@ -64,6 +64,7 @@ export default {
     'invest.period.hint': '週期時長需要在開始結束內',
     'invest.no.withdraw': '沒有可提取的金額',
     'invest.withdraw.hint': '確認全部提取到錢包？',
+    'invest.balance.hint': '你的錢包餘額不足，不能發起交易？',
     'invest.desc.first': '首次於{time}釋放{num}',
     'invest.desc.second': '然後每{period}釋放{num}，直到{end}',
     'invest.desc.third': 'TGE：訂單創建後將立即釋放{num}',

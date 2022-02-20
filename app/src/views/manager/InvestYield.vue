@@ -11,14 +11,14 @@
         <div class="flex">
           <div class="text-green mr-space-14">{{ $t('invest.start') }}:</div>
           <div class="flex flex-col text-white-f4">
-            <div>{{ YMD(detail.start) }}</div>
+            <div>{{ YMD(detail.startAt) }}</div>
             <div class="font-bold">{{ HM(detail.startAt) }}</div>
           </div>
         </div>
         <div class="flex">
           <div class="text-green mr-space-14">{{ $t('invest.end') }}:</div>
           <div class="flex flex-col text-white-f4">
-            <div>{{ YMD(detail.end) }}</div>
+            <div>{{ YMD(detail.endAt) }}</div>
             <div class="font-bold">{{ HM(detail.endAt) }}</div>
           </div>
         </div>
@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="flex flex-row mt-space-20">
-        <div class="label">{{ $t('invest.investor.address') }}:</div>
+        <div class="label">{{ $t('invest.investor.address') }}</div>
         <div class="flex items-center" @click="copy(detail.investAddress)">
           <div>{{ detail.investAddress }}:</div>
           <el-icon><copy-document /></el-icon>
@@ -85,7 +85,10 @@
         <div>{{ toFixed(enableWithdraw) }}{{ tokenName }}</div>
       </div>
 
-      <div class="mt-space-40 px-space-64 btn-common" @click="clickWithdrawn">
+      <div
+        class="mt-space-40 px-space-64 btn-common"
+        :class="enableWithdraw <= 0 ? 'disable' : ''"
+        @click="clickWithdrawn">
         {{ $t('invest.withdraw') }}
       </div>
     </div>
@@ -102,7 +105,7 @@
   }}</success-dialog>
 </template>
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWallet } from 'solana-wallets-vue'
 import { ElMessage } from 'element-plus'
@@ -117,7 +120,7 @@ import { useProgram } from '@/composable/anchorProgram'
 import { useOrder } from '@/composable/order'
 
 const { copy, t, elLoading, toFixed } = useTools()
-const { withdrawToken } = useProgram()
+const { withdrawToken, balance, getBalance } = useProgram()
 
 const router = useRouter()
 const { publicKey } = useWallet()
@@ -141,6 +144,16 @@ const {
   nextUnfreeTime,
   enableWithdraw
 } = useOrder(detail)
+
+watch(
+  enableWithdraw,
+  (v) => {
+    if (v > 0) {
+      getBalance()
+    }
+  },
+  { immediate: true }
+)
 
 const loadDetail = async () => {
   const loading = elLoading(t('loading'))
@@ -171,6 +184,10 @@ const checkParams = () => {
     ElMessage.error(t('invest.no.withdraw'))
     return false
   }
+  if (balance.value <= 0) {
+    ElMessage.error(t('invest.balance.hint'))
+    return false
+  }
   return true
 }
 
@@ -187,7 +204,7 @@ const onSureConfirm = throttle(() => {
 const withdrawAndRecord = async () => {
   const loading = elLoading(t('invest.withdrawing'))
   try {
-    const result = await withdrawToken(detail, enableWithdraw.value)
+    const result = await withdrawToken(detail.value, enableWithdraw.value)
     await orderWithdrawn({
       ...result,
       id: detail.value.id,
@@ -209,4 +226,8 @@ onMounted(loadDetail)
 </script>
 <style lang="scss" scoped>
 @import 'manager.scss';
+
+.disable {
+  background: var(--light-9a);
+}
 </style>
