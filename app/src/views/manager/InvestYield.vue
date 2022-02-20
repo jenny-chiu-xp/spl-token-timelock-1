@@ -105,7 +105,7 @@
   }}</success-dialog>
 </template>
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWallet } from 'solana-wallets-vue'
 import { ElMessage } from 'element-plus'
@@ -120,7 +120,7 @@ import { useProgram } from '@/composable/anchorProgram'
 import { useOrder } from '@/composable/order'
 
 const { copy, t, elLoading, toFixed } = useTools()
-const { withdrawToken, balance, getBalance } = useProgram()
+const { withdrawToken, getBalance } = useProgram()
 
 const router = useRouter()
 const { publicKey } = useWallet()
@@ -144,16 +144,6 @@ const {
   nextUnfreeTime,
   enableWithdraw
 } = useOrder(detail)
-
-watch(
-  enableWithdraw,
-  (v) => {
-    if (v > 0) {
-      getBalance()
-    }
-  },
-  { immediate: true }
-)
 
 const loadDetail = async () => {
   const loading = elLoading(t('loading'))
@@ -184,10 +174,6 @@ const checkParams = () => {
     ElMessage.error(t('invest.no.withdraw'))
     return false
   }
-  if (balance.value <= 0) {
-    ElMessage.error(t('invest.balance.hint'))
-    return false
-  }
   return true
 }
 
@@ -202,6 +188,11 @@ const onSureConfirm = throttle(() => {
 })
 
 const withdrawAndRecord = async () => {
+  const balance = await getBalance()
+  if (balance <= 0) {
+    ElMessage.error(t('invest.balance.hint'))
+    return
+  }
   const loading = elLoading(t('invest.withdrawing'))
   try {
     const result = await withdrawToken(detail.value, enableWithdraw.value)

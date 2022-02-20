@@ -169,17 +169,14 @@ export const useProgram = () => {
         }
     }
 
-    const balance = ref(0)
     const getBalance = async () => {
         const amount = await connection.getBalance(wallet.value.publicKey)
-        balance.value = amount
         return amount
     }
 
     return {
         createVesting,
         withdrawToken,
-        getBalance,
-        balance
+        getBalance
     }
 }
