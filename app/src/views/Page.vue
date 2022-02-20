@@ -30,7 +30,7 @@ const { publicKey } = useWallet()
 const router = useRouter()
 const store = useStore()
 
-const { login,logout } = useUser()
+const { login, logout } = useUser()
 
 watch(
   publicKey,

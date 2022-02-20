@@ -14,19 +14,15 @@ import App from './App.vue'
 
 import 'solana-wallets-vue/styles.css'
 import SolanaWallets from 'solana-wallets-vue'
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import {
     PhantomWalletAdapter,
-    SlopeWalletAdapter,
-    SolflareWalletAdapter
+    SlopeWalletAdapter
 } from '@solana/wallet-adapter-wallets'
 
 const walletOptions = {
     wallets: [
         new PhantomWalletAdapter(),
-        new SlopeWalletAdapter(),
-        new PhantomWalletAdapter(),
-        new SolflareWalletAdapter({ network: WalletAdapterNetwork.Devnet })
+        new SlopeWalletAdapter()
     ],
     autoConnect: true
 }

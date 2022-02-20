@@ -13,11 +13,11 @@
           class="w-full flex justify-between text-size-24 font-bold mt-space-64">
           <div class="expand flex flex-row">
             <div>{{ $t('invest.start') }}:</div>
-            <div class="text-white-f4">{{ YMDHM(detail.start) }}</div>
+            <div class="text-white-f4">{{ YMDHM(detail.startAt) }}</div>
           </div>
           <div class="expand flex flex-row">
             <div>{{ $t('invest.end') }}:</div>
-            <div class="text-white-f4">{{ YMDHM(detail.end) }}</div>
+            <div class="text-white-f4">{{ YMDHM(detail.endAt) }}</div>
           </div>
         </div>
         <div class="my-space-32 sep-line"></div>
@@ -100,7 +100,7 @@ const route = useRoute()
 const id = ref('')
 id.value = route.params.id
 
-const detail = ref()
+const detail = ref({})
 const {
   tokenName,
   total,

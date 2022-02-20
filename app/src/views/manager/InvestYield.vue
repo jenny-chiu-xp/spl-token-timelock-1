@@ -12,14 +12,14 @@
           <div class="text-green mr-space-14">{{ $t('invest.start') }}:</div>
           <div class="flex flex-col text-white-f4">
             <div>{{ YMD(detail.start) }}</div>
-            <div class="font-bold">{{ HM(detail.start) }}</div>
+            <div class="font-bold">{{ HM(detail.startAt) }}</div>
           </div>
         </div>
         <div class="flex">
           <div class="text-green mr-space-14">{{ $t('invest.end') }}:</div>
           <div class="flex flex-col text-white-f4">
             <div>{{ YMD(detail.end) }}</div>
-            <div class="font-bold">{{ HM(detail.end) }}</div>
+            <div class="font-bold">{{ HM(detail.endAt) }}</div>
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@ const showSuccess = ref(false)
 
 const walletAddress = computed(() => publicKey.value.toBase58())
 
-const detail = ref()
+const detail = ref({})
 const {
   tokenName,
   total,

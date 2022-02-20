@@ -10,15 +10,15 @@ export const useOrder = (order) => {
     const withdrawn = computed(() => order.value.withdrawnAmount)
     const cliffUnlock = computed(() => {
         const { cliffRate } = order.value
-        return cliffRate > 0 ? total.value * (100 / cliffRate) : 0
+        return cliffRate > 0 ? total.value * (cliffRate / 100) : 0
     })
     const tgeUnlock = computed(() => {
         const { tgeRate } = order.value
-        return tgeRate > 0 ? total.value * (100 / tgeRate) : 0
+        return tgeRate > 0 ? total.value * (tgeRate / 100) : 0
     })
     const unlockRate = computed(() => {
         const { cliffAt, startAt, endAt, period, cliffRate, tgeRate, total } = order.value
-        const duration = endAt - (cliffAt || startAt)
+        const duration = (endAt - (cliffAt || startAt)) / 1000
         const periodNum = Math.ceil(duration / (period || 1))
         const periodTotal = total * (100 - cliffRate - tgeRate) / 100
         return periodTotal / (periodNum || 1)
@@ -30,6 +30,9 @@ export const useOrder = (order) => {
     })
     const unfreeze = computed(() => {
         const { cliffAt, startAt, endAt, period, cliffRate, tgeRate, total } = order.value
+        if (tgeUnlock.value > 0) {
+            return tgeUnlock.value
+        }
         const now = Date.now()
         if (now >= endAt) {
             return total
@@ -40,7 +43,7 @@ export const useOrder = (order) => {
         if (now <= cliffAt) {
             return total * (tgeRate / 100)
         }
-        const duration = now - (cliffAt || startAt)
+        const duration = (now - (cliffAt || startAt)) / 1000
         const periodNum = Math.floor(duration / (period || 1))
         const periodTotal = total * (100 - cliffRate - tgeRate) / 100
         return periodTotal / (periodNum || 1)
@@ -57,7 +60,7 @@ export const useOrder = (order) => {
         if (now <= cliffAt) {
             return cliffAt
         }
-        const duration = now - (cliffAt || startAt)
+        const duration = (now - (cliffAt || startAt)) / 1000
         const periodNum = Math.ceil(duration / (period || 1))
         return (cliffAt || startAt) + period * periodNum
     })

@@ -60,7 +60,7 @@ export function loadLanguageAsync (lang = defaultLang) {
       if (!loadedLanguages.includes(lang)) {
         return import(`./lang/${lang}.js`).then(msg => {
           // const locale = msg.default
-          // i18n.setLocaleMessage(lang, locale)
+          // setLocaleMessage(lang, locale)
           loadedLanguages.push(lang)
           return setI18nLanguage(lang)
         })

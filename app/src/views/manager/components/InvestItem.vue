@@ -9,9 +9,9 @@
         <div>{{ item.investAddress }}</div>
       </div>
       <div class="flex-col">
-        <div>{{ $t('invest.start') }}：{{ YMDHM(item.start) }}</div>
+        <div>{{ $t('invest.start') }}：{{ YMDHM(item.startAt) }}</div>
         <div class="mt-space-8">
-          {{ $t('invest.end') }}：{{ YMDHM(item.end) }}
+          {{ $t('invest.end') }}：{{ YMDHM(item.endAt) }}
         </div>
       </div>
     </div>
