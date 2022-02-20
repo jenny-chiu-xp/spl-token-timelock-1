@@ -27,7 +27,7 @@ const walletOptions = {
     autoConnect: true
 }
 
-export const app = createApp(App)
+const app = createApp(App)
 app.use(SolanaWallets, walletOptions)
 app.use(ElementPlus)
 app.use(router)
