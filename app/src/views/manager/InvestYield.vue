@@ -32,9 +32,9 @@
         </div>
       </div>
       <div class="flex flex-row mt-space-20">
-        <div class="label">{{ $t('invest.investor.address') }}</div>
+        <div class="label">{{ $t('invest.investor.address') }}:</div>
         <div class="flex items-center" @click="copy(detail.investAddress)">
-          <div>{{ detail.investAddress }}:</div>
+          <div>{{ detail.investAddress }}</div>
           <el-icon><copy-document /></el-icon>
         </div>
       </div>
@@ -72,6 +72,10 @@
         <div class="label">{{ $t('invest.free.amount') }}:</div>
         <div>{{ toFixed(unfreeze) }}{{ tokenName }}</div>
       </div>
+      <div class="w-full mt-space-8">
+        <progress-line :rate="unfreeze / total"></progress-line>
+      </div>
+
       <div class="flex flex-row mt-space-20">
         <div class="label">{{ $t('invest.unfreeze.next') }}:</div>
         <div>{{ YMDHM(nextUnfreeTime) }}</div>
@@ -80,6 +84,10 @@
         <div class="label">{{ $t('invest.withdraw.amount') }}:</div>
         <div>{{ toFixed(withdrawn) }}{{ tokenName }}</div>
       </div>
+      <div class="w-full mt-space-8">
+        <progress-line :rate="withdrawn / total"></progress-line>
+      </div>
+
       <div class="flex flex-row mt-space-20">
         <div class="label">{{ $t('invest.withdraw.enable') }}:</div>
         <div>{{ toFixed(enableWithdraw) }}{{ tokenName }}</div>
@@ -112,6 +120,7 @@ import { ElMessage } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import SuccessDialog from '@/components/SuccessDialog.vue'
+import ProgressLine from '@/components/ProgressLine.vue'
 import { getOrderList, orderWithdrawn } from '@/api'
 import { useDayjs } from '@/composable/tools'
 import { useTools } from '@/composable/tools'

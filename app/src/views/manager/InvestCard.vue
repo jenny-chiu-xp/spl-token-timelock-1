@@ -69,6 +69,10 @@
           <div class="label">{{ $t('invest.free.amount') }}:</div>
           <div>{{ toFixed(unfreeze) }}{{ tokenName }}</div>
         </div>
+        <div class="w-full mt-space-8">
+          <progress-line :rate="unfreeze / total"></progress-line>
+        </div>
+
         <div class="flex flex-row mt-space-20">
           <div class="label">{{ $t('invest.unfreeze.next') }}:</div>
           <div>{{ YMDHM(nextUnfreeTime) }}</div>
@@ -77,6 +81,10 @@
           <div class="label">{{ $t('invest.withdraw.amount') }}:</div>
           <div>{{ toFixed(withdrawn) }}{{ tokenName }}</div>
         </div>
+        <div class="w-full mt-space-8">
+          <progress-line :rate="withdrawn / total"></progress-line>
+        </div>
+
         <div class="flex flex-row mt-space-20">
           <div class="label">{{ $t('invest.withdraw.enable') }}:</div>
           <div>{{ toFixed(enableWithdraw) }}{{ tokenName }}</div>
@@ -88,6 +96,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { ArrowLeft, CopyDocument } from '@element-plus/icons-vue'
+import ProgressLine from '@/components/ProgressLine.vue'
 import { useRoute } from 'vue-router'
 import { getOrderDetail } from '@/api'
 import { useDayjs } from '@/composable/tools'
