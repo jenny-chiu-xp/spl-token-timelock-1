@@ -39,7 +39,7 @@ const list = ref([])
 const loadList = async () => {
   const loading = elLoading(t('loading'))
   try {
-    const res = await getOrderList({ pageSize: 100 })
+    const res = await getOrderList({ pageSize: 100, status: 1 })
     list.value = res.list || []
   } catch (err) {
     console.error('load order list err', err)

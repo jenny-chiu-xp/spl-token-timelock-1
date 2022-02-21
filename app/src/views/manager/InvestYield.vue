@@ -151,7 +151,8 @@ const loadDetail = async () => {
   try {
     res = await getOrderList({
       pageSize: 1,
-      investAddress: walletAddress.value
+      investAddress: walletAddress.value,
+      status: 1
     })
   } catch (err) {
     console.error('get order list error: ' + err)

@@ -94,7 +94,7 @@ export const useProgram = () => {
             _escrowVaultToken.data
         )
         console.log('escrowVaultTokenData amount:', _escrowVaultData.amount)
-        const success = _escrowVaultData.amount === total
+        const success = _escrowVaultData.amount === total * LAMPORTS_PER_SOL
         return { tx, success }
     }
 
@@ -157,7 +157,7 @@ export const useProgram = () => {
         const newRecipientAmount = token.parseTokenAccountData(newRecipientTokenAccountInfo.data).amount
 
         console.log('new ~ old', newRecipientAmount, oldRecipientAmount)
-        const success = newRecipientAmount - oldRecipientAmount === amount
+        const success = newRecipientAmount - oldRecipientAmount === amount * LAMPORTS_PER_SOL
         return {
             tx,
             oldEscrowAmount,

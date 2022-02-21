@@ -1,13 +1,14 @@
 import { computed } from 'vue'
 import { PERIOD_UNITS } from '@/store/dict'
 import { useI18n } from 'vue-i18n'
+import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 
 export const useOrder = (order) => {
     const { t } = useI18n()
 
     const total = computed(() => order.value.total)
     const tokenName = computed(() => order.value.tokenName)
-    const withdrawn = computed(() => order.value.withdrawnAmount)
+    const withdrawn = computed(() => order.value.withdrawnAmount / LAMPORTS_PER_SOL)
     const cliffUnlock = computed(() => {
         const { cliffRate } = order.value
         return cliffRate > 0 ? total.value * (cliffRate / 100) : 0
