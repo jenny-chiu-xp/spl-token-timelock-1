@@ -1,11 +1,11 @@
-import { ref } from 'vue'
 import { useSolanaWallet } from '@/composable/solana'
 import { BN } from '@project-serum/anchor'
 import { token } from '@project-serum/common'
 import {
     PublicKey, SystemProgram,
     SYSVAR_RENT_PUBKEY,
-    SYSVAR_CLOCK_PUBKEY
+    SYSVAR_CLOCK_PUBKEY,
+    LAMPORTS_PER_SOL
 } from '@solana/web3.js'
 import {
     TOKEN_PROGRAM_ID,
@@ -56,7 +56,7 @@ export const useProgram = () => {
         )
 
         const tx = await program.value.rpc.createVesting(
-            new BN(total),
+            new BN(total * LAMPORTS_PER_SOL),
             nonce,
             new BN(vestId),
             nacl.util.decodeUTF8(investName),
@@ -134,7 +134,7 @@ export const useProgram = () => {
         console.log('oldRecipientTokenAmount', oldRecipientAmount)
 
         const tx = await program.value.rpc.withdraw(
-            new BN(amount),
+            new BN(amount * LAMPORTS_PER_SOL),
             {
                 accounts: {
                     recipientToken: recipientToken,
